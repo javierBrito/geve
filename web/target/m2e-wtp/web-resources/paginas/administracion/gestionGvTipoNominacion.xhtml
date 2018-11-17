@@ -1,0 +1,162 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">Administraci&#243;n de Informaci&#243;n de TipoNominacion</ui:define>
+    <ui:define name="contenido">
+		<script type="text/javascript">
+            function NumCheck(e, field) {
+            	//alert("NumCheck");
+                key = e.keyCode ? e.keyCode : e.which
+                if (key == 9) return true;
+                if (key == 8) return true;
+                if (key > 47 &amp;&amp; key &lt; 58) {
+                    if (field.value == "") return true
+                    regexp = /[0-9]{4}(\.\d{2,2}){0,1}$/
+                    return !(regexp.test(field.value))
+                }
+                if (key == 46) {
+                    if (field.value == "") return false
+                    regexp = /^[0-9]+$/
+                    return regexp.test(field.value)
+                }
+                return false
+            }
+            
+            function restar(item) {
+            	//alert("restar(item)");
+            	//v1 = identificador de la forma que contiene los atributos a procesar. (jbrito-20150908)
+                var v1 = item.id.substring(0 , item.id.length - 14); //El valor 14 = # caracteres del nombre atributo ej: mntPrecio
+                var n1 = parseFloat(document.getElementById(v1 + "itMntEntregado").value);
+                var n2 = parseFloat(document.getElementById(v1 + "itMntTotal").value);
+
+                if(n1 + "" == "NaN") n1 = 0;
+                if(n2 + "" == "NaN") n2 = 0;
+                
+				var total = (n1 - n2);
+            	//alert(total);
+                var s = document.getElementById(v1 + "itMntCambio");
+                s.value = total.toString().substr(0, 4); 
+            }
+        </script>
+        <h:form id="formBusqueda">
+            <fieldset style="width: 96%; text-align: left;">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar TipoNominaciones:</b>
+				</legend>            
+
+                <div style="width: 100%" align="center">
+                    <rich:panel>
+                        <h:panelGrid columns="2">
+                            <a4j:commandButton id="btnBuscar" render="tblTipoNominaciones pngTipoNominaciones popTipoNominaciones" value="Buscar" 
+                            				   action="#{gvTipoNominacionBean.buscar()}">  
+                    		</a4j:commandButton>
+                            <a4j:commandLink id="btnNuevo" render="frm2 tblTipoNominaciones pngTipoNominaciones popTipoNominaciones" 
+                            				 action="#{gvTipoNominacionBean.nuevo()}" 
+                            				 oncomplete="#{rich:component('popTipoNominaciones')}.show();return false;">
+                            	<h:graphicImage value="/img/nuevo_registro.jpg" alt="Nuevo" title="Ingresar Datos TipoNominacion"/>
+                            </a4j:commandLink>
+                        </h:panelGrid>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+                    <rich:panel>
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblTipoNominaciones">
+                            	<rich:dataTable value="#{gvTipoNominacionBean.listaGvTipoNominacion}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."> 
+                                	<rich:column style="text-align:center">
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Descripción</f:facet>
+                                    	#{registro.descripcion}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">V a l o r</f:facet>
+                                    	#{registro.valor}
+                                	</rich:column>
+                                	<rich:column style="text-align: center;">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm2" 
+                                						 action="#{gvTipoNominacionBean.editar(registro)}" 
+                                						 oncomplete="#{rich:component('popTipoNominaciones')}.show();return false;">
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos TipoNominacion"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+
+      	<rich:popupPanel id="popTipoNominaciones" autosized="true" moveable="true">
+			<f:facet name="header">Informaci&#243;n TipoNominacion</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popTipoNominaciones')}.hide();return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset  id="fieldset1" style="text-align: left;">
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>TipoNominacion</b>
+				</legend>
+				<h:form id="frm2">
+		            <h:panelGrid id="pngTipoNominaciones" columns="3" rendered="true">
+	                    <h:outputLabel value = "Descripción: "/>
+	                    <h:inputText id="txtDescripcion" required="true" requiredMessage="Campo obligatorio"
+	                    			 onkeyup="mayusculas(this)" size="50" maxlength="50"  
+	                    			 value="#{gvTipoNominacionBean.gvTipoNominacion.descripcion}" />
+			            <rich:message for="txtDescripcion" style="color: red;"></rich:message>
+
+	                    <h:outputLabel value = "V a l o r: "/>
+   			            <h:inputText id="itValor" style="font-size: 12px; width: 10%; text-align: right; font-weight: bold"  
+               						 value="#{gvTipoNominacionBean.gvTipoNominacion.valor}" 
+            			 			 onkeypress="return NumCheck(event, this)" >
+                       	</h:inputText>
+			            <rich:message for="itValor" style="color: red;"></rich:message>
+								                	
+				        <a4j:commandButton render="tblTipoNominaciones pngTipoNominaciones popInformacion" value="Guardar" 
+				                		   action="#{gvTipoNominacionBean.guardar}" execute="frm2"
+										   oncomplete="if('#{facesContext.maximumSeverity}'.indexOf('ERROR') &lt; 0) #{rich:component('popInformacion')}.show();return false;"/>
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popTipoNominaciones" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacion" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvTipoNominacionBean.mensaje}"/>
+			    </h:panelGrid>
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacion')}.hide();#{rich:component('popTipoNominaciones')}.hide();return false;">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

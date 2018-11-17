@@ -1,0 +1,246 @@
+/* ESTILOS CORRESPONDIENTES A LA CABECERA */
+
+.banner {
+	height: 120px;
+}
+
+.ecuador {
+	background-image: url('../img/logo_asedinfo.png');
+    background-position: right center;
+    background-repeat: no-repeat;
+    width: 280px;
+    height: 100px;
+    float: right;
+}
+
+.logo {
+	background-image: url('../img/logo_tienda.png');
+    background-position: right center;
+    background-repeat: no-repeat;
+    width: 280px;
+    height: 100%;
+    float: left;
+}
+
+.usuario {
+    float: right;
+    left: 279px;
+    position: relative;
+    top: 100px;
+}
+
+.ajax-status {
+	float: right;
+    right: 0;
+    position: relative;
+    top: -36px;
+    color: #4A75B5;
+}
+
+/* ESTILOS CORRESPONDIENTES AL MENU */
+
+.menu-vertical{
+	width: 210px;
+	float: left;
+}
+
+/* ESTILOS CORRESPONDIENTES AL PIE DE PAGINA */
+
+.footer {
+	border-top: solid 1px #A8A8A8;
+    text-align: center;
+    padding-top: 11px;
+    color: #616161
+}
+
+/* ESTILOS DE TODA LA PAGINA */
+
+body {
+	font-size: 11px;
+	font-family: Arial,Verdana,sans-serif;
+	background: #F0F0F0;
+}
+
+.contenedor {
+    margin: 0 auto;
+	width: 1200px;  /*Reajuste*/
+	/* width: 960px;  */
+    box-shadow: 0 11px 10px rgba(0, 0, 0, 0.8);
+    border: 1px solid #A8A8A8;
+    padding: 10px;
+    background: #FFFFFF;
+}
+.contenedor-horizontal {
+    overflow: auto;
+    min-height: 250px;
+    border-top: solid 1px #A8A8A8;
+    padding-top: 10px;
+    padding-bottom: 25px;
+}
+
+.contenido {
+    width: 740px;
+    margin-left: 220px;
+    overflow: visible;
+}
+
+.titulo {
+	font-size: 14px;
+	font-family: Arial,Verdana,sans-serif;
+	font-weight: bold;
+}
+
+.prueba {
+	background-image: url("../css/images/rich.png");
+	background-color: #D6E6FB;
+	background-position: left top;
+	border-bottom: 1px solid #C0C0C0;
+	border-right: 1px solid #C0C0C0;
+	color: #0B356C;
+	font-family: Arial, Verdana, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 4px;
+	text-align: center;
+}
+
+.pruebaRojo {
+	background-color: #FCDCDC;
+	background-position: left top;
+	border-bottom: 1px solid #C0C0C0;
+	border-right: 1px solid #C0C0C0;
+	color: #0B356C;
+	font-family: Arial, Verdana, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 4px;
+	text-align: center;
+}
+
+.columna {
+	border-bottom: 1px solid #C0C0C0;
+	border-right: 1px solid #C0C0C0;
+	border-left: 1px solid #C0C0C0;
+	color: #000000;
+	font-family: Arial, Verdana, sans-serif;
+	font-size: 11px;
+	padding: 4px;
+	background-color: #F7FDFC;
+}
+
+.columna:hover {
+	background-color: #FFFFE0;
+}
+
+.extdt-hsep {
+	display: none;
+}
+/* grilla */
+
+.rf-dt {
+	background-color: #FFFFFF;
+	border-collapse: collapse;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #C0C0C0;
+	empty-cells: show;
+}
+.rf-dt-c {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #C0C0C0;
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-right-color: #C0C0C0;
+	color: #000000;
+	font-family: Arial, Verdana, sans-serif ;
+	font-size: 11px;
+	padding: 4px;
+}
+.rf-dt-nd {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #C0C0C0;
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-right-color: #C0C0C0;
+	color: #000000;
+	font-family: Arial, Verdana, sans-serif ;
+	font-size: 11px;
+	padding: 4px;
+}
+.rf-dt-hdr-c {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #C0C0C0;
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-right-color: #C0C0C0;
+	background-color: #4A75B5;
+	background-image: url(/titulacion-web/faces/rfRes/colHdrGrad.png?v=4.3.4.Final&db=eAFjZJBjZDBiZBBh!D!5yFPG!16lWxmYADDcBho_&ln=org.richfaces.images);
+	background-position: top left;
+	color: #FFFFFF;
+	font-family: Arial, Verdana, sans-serif ;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 4px;
+	text-align: center;
+}
+.rf-dt-shdr-c {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #C0C0C0;
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-right-color: #C0C0C0;
+	background-color: #4A75B5;
+	background-image: url(/titulacion-web/faces/rfRes/colHdrGrad.png?v=4.3.4.Final&db=eAFjZJBjZDBiZBBh!D!5yFPG!16lWxmYADDcBho_&ln=org.richfaces.images);
+	background-position: top left;
+	color: #FFFFFF;
+	font-family: Arial, Verdana, sans-serif ;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 4px;
+	text-align: center;
+}
+.rf-dt-sftr-c {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #C0C0C0;
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-right-color: #C0C0C0;
+	background-color: #f1f1f1;
+	color: #000000;
+	font-family: Arial, Verdana, sans-serif ;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 4px;
+	text-align: center;
+}
+.rf-dt-th {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #C0C0C0;
+}
+.rf-dt-ftr-c {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #C0C0C0;
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-right-color: #C0C0C0;
+	color: #000000;
+	background-color: #cccccc;
+	font-family: Arial, Verdana, sans-serif ;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 4px;
+	text-align: center;
+}
+.rf-stt-exp {
+	background-image: url(/titulacion-web/faces/javax.faces.resource/up_icon.gif?ln=org.richfaces);
+}
+.rf-stt-col {
+	background-image: url(/titulacion-web/faces/javax.faces.resource/down_icon.gif?ln=org.richfaces);
+}

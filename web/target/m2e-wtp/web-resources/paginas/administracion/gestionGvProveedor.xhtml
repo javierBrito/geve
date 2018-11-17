@@ -1,0 +1,229 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">#{gvProveedorBean.nombreEmpresa} - Administraci&#243;n de Informaci&#243;n de Proveedor</ui:define>
+    <ui:define name="contenido">
+        <h:form id="formBusqueda"  style="font-size: 11px; font-weight: bold">
+            <fieldset style="width: 96%; text-align: left;">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar Proveedores:</b>
+				</legend>            
+
+                <div style="width: 100%" align="center">
+					<rich:panel>
+						<fieldset>
+						<h:panelGrid columns="2">
+							<h:panelGroup>
+								<b><h:outputText value="Buscar por: "/></b>
+							</h:panelGroup>
+							<h:selectOneRadio value="#{gvProveedorBean.opcionBusqueda}" style="font-size: 11px; font-weight: bold" >
+								<f:selectItem itemLabel="Identificaci&#243;n" itemValue="1" />
+								<f:selectItem itemLabel="RazonSocial y Nombre Contacto" itemValue="2" />
+								<a4j:ajax execute="@this"
+										  render="@this idLabel idCampo labelRazonSocial razonSocial labelNomContacto nomContacto tblProveedores"
+										  listener="#{gvProveedorBean.limpiarVariablesBusqueda()}">
+								</a4j:ajax>
+							</h:selectOneRadio>
+
+							<h:panelGroup id="idLabel">
+								<b><h:outputText value="Identificaci&#243;n:"
+												 rendered="#{gvProveedorBean.opcionBusqueda==1}" /></b>
+							</h:panelGroup>
+
+							<h:panelGroup id="idCampo">
+								<h:inputText id="identificacion"
+											 value="#{gvProveedorBean.identificacionBuscar}"
+											 onkeyup="mayusculas(this)" style="width:30%"
+											 rendered="#{gvProveedorBean.opcionBusqueda==1}" maxlength="13">
+									<a4j:ajax execute="@this" render="@this identificacion"></a4j:ajax>
+								</h:inputText>
+								<a4j:commandButton value="Buscar" render="tblProveedores"
+												   rendered="#{gvProveedorBean.opcionBusqueda==1}"
+												   action="#{gvProveedorBean.buscarPorDni}" />
+							</h:panelGroup>
+
+							<h:panelGroup id="labelRazonSocial">
+								<b><h:outputText value="RazonSocial:"
+												 rendered="#{gvProveedorBean.opcionBusqueda==2}" /></b>
+							</h:panelGroup>
+							<h:panelGroup id="razonSocial">
+								<h:inputText value="#{gvProveedorBean.razonSocialBuscar}"
+											 onkeyup="mayusculas(this)" style="width:70%"
+											 rendered="#{gvProveedorBean.opcionBusqueda==2}">
+									<a4j:ajax execute="@this" render="@this razonSocial"></a4j:ajax>
+								</h:inputText>
+							</h:panelGroup>
+							<h:panelGroup id="labelNomContacto">
+								<b><h:outputText value="Nombre Contacto:"
+												 rendered="#{gvProveedorBean.opcionBusqueda==2}" /></b>
+							</h:panelGroup>
+							<h:panelGroup id="nomContacto">
+								<h:inputText value="#{gvProveedorBean.nomContactoBuscar}"
+											 onkeyup="mayusculas(this)" style="width:70%"
+											 rendered="#{gvProveedorBean.opcionBusqueda==2}">
+									<a4j:ajax execute="@this" render="@this nomContacto"></a4j:ajax>
+								</h:inputText>
+								<a4j:commandButton value="Buscar" render="tblProveedores"
+												   rendered="#{gvProveedorBean.opcionBusqueda==2}"
+												   action="#{gvProveedorBean.buscarPorNombres}" />
+							</h:panelGroup>
+						</h:panelGrid>
+						</fieldset>
+						<a4j:commandLink id="btnNuevo"
+										 render="frm2 tblProveedores pngProveedores popProveedores"
+										 action="#{gvProveedorBean.nuevo()}"
+										 oncomplete="#{rich:component('popProveedores')}.show();return false;">
+							<h:graphicImage value="/img/nuevo_registro.jpg" alt="Nuevo"
+											title="Ingresar Datos Nuevo Proveedor" />
+						</a4j:commandLink>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+                    <rich:panel>
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblProveedores">
+                            	<rich:dataTable value="#{gvProveedorBean.listaGvProveedores}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."
+                                    	        style="font-size: 11px; font-weight: bold" > 
+									<rich:column style="text-align: center">
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+									<rich:column style="text-align: center">
+                                    	<f:facet name="header">Identificación</f:facet>
+                                    	#{registro.dni}
+                                	</rich:column>
+									<rich:column>
+                                    	<f:facet name="header">Razón Social</f:facet>
+                                    	#{registro.razonSocial}
+                                	</rich:column>
+									<rich:column>
+                                    	<f:facet name="header">Nombre Contacto</f:facet>
+                                    	#{registro.nomContacto}
+                                	</rich:column>
+									<rich:column style="text-align: center">
+                                    	<f:facet name="header">Teléfono</f:facet>
+                                    	#{registro.telefono}
+                                	</rich:column>
+									<rich:column style="text-align: center">
+                                    	<f:facet name="header">Movil</f:facet>
+                                    	#{registro.movil}
+                                	</rich:column>
+									<rich:column>
+                                    	<f:facet name="header">Email</f:facet>
+                                    	#{registro.email}
+                                	</rich:column>
+									<rich:column style="text-align: center">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm2" 
+                                						 action="#{gvProveedorBean.editar(registro)}" 
+                                						 oncomplete="#{rich:component('popProveedores')}.show();return false;">
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos Proveedor"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+
+      	<rich:popupPanel id="popProveedores" autosized="true" moveable="true" style="font-size: 12px; font-weight: bold" >
+			<f:facet name="header">Informaci&#243;n Proveedor</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popProveedores')}.hide(); return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset  id="fieldset1" style="text-align: left;">
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Proveedor</b>
+				</legend>
+				<h:form id="frm2">
+		            <h:panelGrid id="pngProveedores" columns="3" rendered="true">
+						
+		                <h:outputLabel for="identificacion" value="Identificaci&#243;n: " />
+		                <h:inputText id="identificacion" value="#{gvProveedorBean.gvProveedor.dni}" 
+		                			 onkeyup="mayusculas(this)" maxlength="13" required="true" requiredMessage="Campo obligatorio" />
+		                <rich:message for="identificacion"/>
+		            
+		                <h:outputLabel for="razonSocial" value="RazonSocial: " />
+		                <h:inputText id="razonSocial" value="#{gvProveedorBean.gvProveedor.razonSocial}" 
+		                			 onkeyup="mayusculas(this)" maxlength="25" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="razonSocial"/>
+		
+		                <h:outputLabel for="nomContacto" value="Nombre Contacto: " />
+		                <h:inputText id="nomContacto" value="#{gvProveedorBean.gvProveedor.nomContacto}" 
+		                			 onkeyup="mayusculas(this)" maxlength="255" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="nomContacto"/>
+		                
+		                <h:outputLabel for="direccion" value="Direcci&#243;n: " />
+		                <h:inputTextarea id="direccion" value="#{gvProveedorBean.gvProveedor.direccion}" 
+		                				 onkeyup="mayusculas(this)" maxlength="255" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="direccion"/>
+		                
+		                <h:outputLabel for="telefono" value="Tel&#233;fono:" />
+		                <h:inputText id="telefono" value="#{gvProveedorBean.gvProveedor.telefono}" maxlength="9" validatorMessage="Valor ingresado no v&#225;lido"  required="true" requiredMessage="Campo obligatorio">
+		                	<f:ajax execute="@this" render="msjTelefono telefono" />               
+						<f:validateRegex pattern="[0-9]{9}" /> 
+						</h:inputText>
+		                <rich:message for="telefono" id="msjTelefono"/>
+		                
+		                <h:outputLabel for="movil" value="Movil: " />
+		                <h:inputText id="movil" value="#{gvProveedorBean.gvProveedor.movil}" maxlength="10" validatorMessage="Valor ingresado no v&#225;lido" required="true" requiredMessage="Campo obligatorio">
+		                	<f:ajax execute="@this" render="msjMovil movil" />               
+						<f:validateRegex pattern="[0-9]{10}" /> 
+		                </h:inputText>
+		                <rich:message for="movil" id="msjMovil"/>
+		                
+		                <h:outputLabel for="correo" value="Correo Electr&#243;nico:" />
+		                <h:inputText id="correo" value="#{gvProveedorBean.gvProveedor.email}" maxlength="50" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="correo"/>
+
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+
+				        <a4j:commandButton render="tblProveedores pngProveedores popInformacion" value="Guardar" 
+				                		   action="#{gvProveedorBean.guardar}" execute="frm2"
+										   oncomplete="if('#{facesContext.maximumSeverity}'.indexOf('ERROR') &lt; 0) #{rich:component('popInformacion')}.show();return false;"/>
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popProveedores" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacion" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvProveedorBean.mensaje}"/>
+			    </h:panelGrid>
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacion')}.hide();#{rich:component('popProveedores')}.hide();return false;">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

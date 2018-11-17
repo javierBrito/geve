@@ -1,0 +1,427 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">#{gvEntradaSalidaBean.nombreEmpresa} - Entradas y Salidas de Caja</ui:define>
+    <ui:define name="contenido">
+		<script type="text/javascript">
+            function NumCheck(e, field) {
+            	//alert("NumCheck");
+                key = e.keyCode ? e.keyCode : e.which
+                if (key == 9) return true;
+                if (key == 8) return true;
+                if (key > 47 &amp;&amp; key &lt; 58) {
+                    if (field.value == "") return true
+                    regexp = /[0-9]{4}(\.\d{2,2}){0,1}$/
+                    return !(regexp.test(field.value))
+                }
+                if (key == 46) {
+                    if (field.value == "") return false
+                    regexp = /^[0-9]+$/
+                    return regexp.test(field.value)
+                }
+                return false
+            }
+            
+            function multiplicar(item) {
+            	//alert("multiplicar(item)");
+            	//v1 = identificador de la forma que contiene los atributos a procesar. (jbrito-20150908)
+                var v1 = item.id.substring(0 , item.id.length - 10); //El valor 10 = # caracteres del nombre atributo ej: mntPrecio
+                var n1 = parseFloat(document.getElementById(v1 + "itCantidad").value);
+                var n2 = parseFloat(document.getElementById(v1 + "itValor").value);
+
+                if(n1 + "" == "NaN") n1 = 1;
+                if(n2 + "" == "NaN") n2 = 1;
+                if(n1 == "0") n1 = 1;
+                if(n2 == "0") n2 = 1;
+                
+				var total = (n1 * n2);
+                var s = document.getElementById(v1 + "itImporte");
+                s.value = total.toString().substr(0, 4); 
+            }
+
+        </script>
+
+        <h:form id="formBusqueda">
+            <fieldset style="width: 96%; text-align: left;">
+        		<legend class="item-label" align="left" style="font-size: 12px">
+        			<b>Buscar Registros de Caja:</b>
+				</legend>            
+
+                <div style="width: 100%" align="center">
+					<rich:panel>
+						<fieldset>
+							<legend class="item-label" align="left" style="font-size: 12px;">
+								<b>Parámetros de busqueda:</b>
+							</legend>
+							<h:panelGrid columns="3">
+			                	
+			            		<h:outputLabel for="cFechaActual" value="Fecha Actual: "/>
+			            		<rich:calendar id="cFechaActual" required="true" requiredMessage="Campo obligatorio"
+			            					   value="#{gvEntradaSalidaBean.fechaRegistra}"
+			            	   				   datePattern="dd/MM/yyyy"/> 
+				        		<rich:message for="cFechaActual" style="color: red;"></rich:message>
+						
+								<a4j:commandButton value="Buscar registro de Cajas" 
+												   render="tblCajas"
+												   action="#{gvEntradaSalidaBean.buscarListaPorParametros}" />
+							</h:panelGrid>
+						</fieldset>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+                    <rich:panel>
+						<a4j:commandLink render="frm2 tblCajas"
+										 action="#{gvEntradaSalidaBean.nuevo()}"
+										 oncomplete="#{rich:component('popCajaCrear')}.show();return false;">
+							<h:graphicImage value="/img/nuevo_registro.jpg" alt="Nuevo"
+											title="Ingresar Datos Nueva Caja" />
+						</a4j:commandLink>
+						<br />
+						<br />
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblCajas" >
+                            	<rich:dataTable value="#{gvEntradaSalidaBean.listaGvCaja}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."> 
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">F e c h a</f:facet>
+                                    	<!-- #{registro.fechaRegistra} -->
+                                    	<h:outputText value="#{registro.fechaRegistra}" >
+                                    		<f:convertDateTime pattern="dd/MM/yyyy" />
+										</h:outputText>
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Monto Caja</f:facet>
+                                    	#{registro.mntCaja}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Monto Libro</f:facet>
+                                    	#{registro.mntLibro}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Monto Diferencia</f:facet>
+                                    	#{registro.mntDiferencia}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Monto Reingreso</f:facet>
+                                    	#{registro.mntReingreso}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm3 pngCajaActualizar popCajaActualizar olMensajeActualizar"
+                                						 action="#{gvEntradaSalidaBean.editar(registro)}" 
+                                						 oncomplete="#{rich:component('popCajaActualizar')}.show();return false;">
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos Caja"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+
+      	<rich:popupPanel id="popCajaCrear" autosized="true" moveable="true">
+			<f:facet name="header">Informaci&#243;n Caja + Entradas/Salidas</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popCajaCrear')}.hide(); return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset id="fEntradasSalidas">
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Crear Entrada/Salida</b>
+				</legend>
+				<h:form id="frm2">
+		            <h:panelGrid columns="3" >
+	            		<h:outputLabel value="Fecha Actual: "/>
+	                	<h:inputText readonly="true" style="width: 42%; text-align: left; font-size: 12px; font-weight: bold"   
+   		            				 value="#{gvEntradaSalidaBean.fechaRegistra}" >
+                        	<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:inputText>
+               			<h:outputLabel value="" />
+
+		                <h:outputLabel value="Monto Caja: " />
+		                <h:inputText readonly="true" style="width: 30%; text-align: right; font-size: 12px; font-weight: bold"   
+		                			 value="#{gvEntradaSalidaBean.gvCajaCrear.mntCaja}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="Monto Libro: " />
+		                <h:inputText readonly="true" style="width: 30%; text-align: right; font-size: 12px; font-weight: bold"   
+		                			 value="#{gvEntradaSalidaBean.gvCajaCrear.mntLibro}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="Monto Diferencia: " />
+		                <h:inputText readonly="true" style="width: 30%; text-align: right; font-size: 12px; font-weight: bold"   
+		                			 value="#{gvEntradaSalidaBean.gvCajaCrear.mntDiferencia}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+			        </h:panelGrid>
+
+					<h:panelGrid>
+						<h:panelGroup>
+							<rich:dataTable	id="dtEntradasSalidas" value="#{gvEntradaSalidaBean.listaGvEntradaSalidaCrear}"
+											var="registro1" rows="10" styleClass="table"
+											iterationStatusVar="it" noDataLabel="No existen registros..." >
+								<rich:column>
+									<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                </rich:column>
+								<rich:column style="width: 5%">
+									<f:facet name="header">Proveedor</f:facet>
+									<rich:select required="true" requiredMessage="Campo obligatorio" 
+												 value="#{registro1.gvProveedor.idProveedor}"
+												 defaultLabel=" seleccione el proveedor " >
+										<f:selectItems value="#{gvEntradaSalidaBean.listaGvProveedor}"
+													   var="item" itemValue="#{item.idProveedor}"
+											   					  itemLabel="#{item.razonSocial}" />
+                                   		<f:ajax event="change" render="dtEntradasSalidas" 
+                                   				listener="#{gvEntradaSalidaBean.cargarDatosProveedor(it.index, registro1.gvProveedor.idProveedor)}" />
+									</rich:select>
+								</rich:column>
+								
+								<rich:column style="text-align: center">
+									<f:facet name="header">Descripción</f:facet>
+									<h:inputText id="itDescripcion" style="text-align:left" size="40" 
+												 required="true" requiredMessage="Campo obligatorio" 
+												 value="#{registro1.descripcion}" 
+												 onkeyup="mayusculas(this)" >
+			            			</h:inputText>
+								</rich:column>
+								
+								<rich:column style="text-align: center">
+									<f:facet name="header">M. Entrada</f:facet>
+									<h:inputText id="itMntEntrada" style="text-align:center" size="6"
+												 value="#{registro1.mntEntrada}"
+												 onkeypress="return NumCheck(event, this)" >
+			            			</h:inputText>
+								</rich:column>
+								
+								<rich:column style="text-align: center">
+									<f:facet name="header">M. Salida</f:facet>
+									<h:inputText id="itMntSalida" style="text-align:center" size="6"
+												 value="#{registro1.mntSalida}"
+												 onkeypress="return NumCheck(event, this)" >
+			            			</h:inputText>
+								</rich:column>
+
+								<rich:column style="text-align: center">
+									<f:facet name="header">Opciones</f:facet>
+									<a4j:commandLink render="frm2" rendered="#{!(registro1.gvProveedor.idProveedor eq 0) and
+																			    (registro1.mntEntrada eq 0.0) and
+																			    (registro1.mntSalida eq 0.0)}"
+													 action="#{gvEntradaSalidaBean.guardarEntradaSalida(registro1, it.index)}" >
+										<h:graphicImage value="/imagenes/guardar-validacion.gif" alt="Guardar Proveedor"
+														title="Guardar Proveedor" />
+									</a4j:commandLink>
+		                			<h:outputLabel value="  " />
+									<a4j:commandLink render="frm2" rendered="#{!(registro1.gvProveedor.idProveedor eq 0) and
+																			   !(registro1.mntEntrada eq 0.0 and
+																			     registro1.mntSalida eq 0.0)}"
+													 action="#{gvEntradaSalidaBean.eliminarEntradaSalida(registro1, it.index)}" >
+										<h:graphicImage value="/img/delete.gif" alt="Eliminar Proveedor"
+														title="Eliminar Proveedor" />
+									</a4j:commandLink>
+								</rich:column>
+								<f:facet name="footer">
+									<rich:dataScroller />
+								</f:facet>
+							</rich:dataTable>
+						</h:panelGroup>
+					</h:panelGrid>
+
+	                <h:outputLabel id="olMensajeCrear" value="#{gvEntradaSalidaBean.mensaje}" style="color: blue;" />
+
+					<h:panelGrid columns="2">
+				        <a4j:commandButton render="frm2 tblCajas popInformacionCrear olMensajeCrear" 
+				        				   value="Guardar Caja" 
+				                		   action="#{gvEntradaSalidaBean.crearCaja}" execute="@this" 
+										   oncomplete="#{rich:component('popInformacionCrear')}.show();return false;"/>
+										   <!-- oncomplete="if('#{facesContext.maximumSeverity}'.indexOf('ERROR') &lt; 0) #{rich:component('popInformacion')}.show();return false;"/> -->
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popCajaCrear" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+
+      	<rich:popupPanel id="popCajaActualizar" autosized="true" moveable="true">
+			<f:facet name="header">Informaci&#243;n Caja + Entradas/Salidas</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popCajaActualizar')}.hide(); return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset>
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Actualizar Entrada/Salida: </b>#{gvEntradaSalidaBean.gvCajaActualizar.idCaja}
+				</legend>
+				<h:form id="frm3">
+		            <h:panelGrid columns="3" >
+	            		<h:outputLabel value="Fecha Actual: "/>
+	                	<h:inputText readonly="true" style="width: 42%; text-align: left; font-size: 12px; font-weight: bold"   
+   		            				 value="#{gvEntradaSalidaBean.fechaRegistra}" >
+                        	<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:inputText>
+               			<h:outputLabel value="" />
+
+		                <h:outputLabel value="Monto Caja: " />
+		                <h:inputText readonly="true" style="width: 30%; text-align: right; font-size: 12px; font-weight: bold"   
+		                			 value="#{gvEntradaSalidaBean.gvCajaActualizar.mntCaja}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="Monto Libro: " />
+		                <h:inputText readonly="true" style="width: 30%; text-align: right; font-size: 12px; font-weight: bold"   
+		                			 value="#{gvEntradaSalidaBean.gvCajaActualizar.mntLibro}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="Monto Diferencia: " />
+		                <h:inputText readonly="true" style="width: 30%; text-align: right; font-size: 12px; font-weight: bold"   
+		                			 value="#{gvEntradaSalidaBean.gvCajaActualizar.mntDiferencia}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+			        </h:panelGrid>
+
+					<h:panelGrid>
+						<h:panelGroup>
+							<rich:dataTable	id="dtEntradasSalidas" value="#{gvEntradaSalidaBean.listaGvEntradaSalidaActualizar}"
+											var="registro2" rows="10" styleClass="table"
+											iterationStatusVar="it" noDataLabel="No existen registros..." >
+								<rich:column>
+									<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                </rich:column>
+								<rich:column>
+									<f:facet name="header">Proveedor</f:facet>
+									<rich:select required="true" requiredMessage="Campo obligatorio" 
+												 value="#{registro2.gvProveedor.idProveedor}"
+												 defaultLabel=" seleccione el tipo de nominación " >
+										<f:selectItems value="#{gvEntradaSalidaBean.listaGvProveedor}"
+													   var="item" itemValue="#{item.idProveedor}"
+											   					  itemLabel="#{item.razonSocial}" />
+                                   		<f:ajax event="change" render="dtEntradasSalidas" 
+                                   				listener="#{gvEntradaSalidaBean.cargarDatosProveedor(it.index, registro2.gvProveedor.idProveedor)}" />
+									</rich:select>
+								</rich:column>
+								
+								<rich:column style="text-align: center">
+									<f:facet name="header">Descripción</f:facet>
+									<h:inputText id="itDescripcion" style="text-align:left" size="200" 
+												 required="true" requiredMessage="Campo obligatorio" 
+												 value="#{registro2.descripcion}"
+												 onkeyup="mayusculas(this)" >
+			            			</h:inputText>
+								</rich:column>
+								
+								<rich:column style="text-align: center">
+									<f:facet name="header">Monto Entrada</f:facet>
+									<h:inputText id="itMntEntrada" style="text-align:center" size="4"
+												 value="#{registro2.mntEntrada}"
+												 onkeypress="return NumCheck(event, this)" >
+			            			</h:inputText>
+								</rich:column>
+								
+								<rich:column style="text-align: center">
+									<f:facet name="header">Monto Salida</f:facet>
+									<h:inputText id="itMntSalida" style="text-align:center" size="4"
+												 value="#{registro2.mntSalida}"
+												 onkeypress="return NumCheck(event, this)" >
+			            			</h:inputText>
+								</rich:column>
+
+								<rich:column style="text-align: center">
+									<f:facet name="header">Opciones</f:facet>
+									<a4j:commandLink render="frm3" disabled="#{!(gvEntradaSalidaBean.gvCajaActualizar.mntLibro eq 0)}"
+													 rendered="#{!(registro2.gvProveedor.idProveedor eq 0) and
+															      (registro2.mntEntrada eq 0.0) and
+																  (registro2.mntSalida eq 0.0)}"
+													 action="#{gvEntradaSalidaBean.guardarEntradaSalida(registro2, it.index)}" >
+										<h:graphicImage value="/imagenes/guardar-validacion.gif" alt="Guardar Proveedor"
+														title="Guardar Proveedor" />
+									</a4j:commandLink>
+		                			<h:outputLabel value="  " />
+									<a4j:commandLink render="frm3" disabled="#{!(gvEntradaSalidaBean.gvCajaActualizar.mntLibro eq 0)}" 
+													 rendered="#{!(registro2.gvProveedor.idProveedor eq 0) and
+																 !(registro2.mntEntrada eq 0.0 and
+																   registro2.mntSalida eq 0.0)}"
+													 action="#{gvEntradaSalidaBean.eliminarEntradaSalida(registro2, it.index)}" >
+										<h:graphicImage value="/img/delete.gif" alt="Eliminar Proveedor"
+														title="Eliminar Proveedor" />
+									</a4j:commandLink>
+								</rich:column>
+								<f:facet name="footer">
+									<rich:dataScroller />
+								</f:facet>
+							</rich:dataTable>
+						</h:panelGroup>
+					</h:panelGrid>
+
+	                <h:outputLabel id="olMensajeActualizar" value="#{gvEntradaSalidaBean.mensaje}" style="color: blue;" />
+
+					<h:panelGrid columns="2">
+				        <a4j:commandButton render="frm3 tblCajas popInformacionActualizar olMensajeActualizar"
+				        				   rendered="#{gvEntradaSalidaBean.gvCajaActualizar.mntLibro eq 0}" 
+				        				   value="Actualizar Caja" 
+				                		   action="#{gvEntradaSalidaBean.actualizarCaja}" execute="@form" 
+										   oncomplete="if('#{facesContext.maximumSeverity}'.indexOf('ERROR') &lt; 0) #{rich:component('popInformacionActualizar')}.show();return false;"/>
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popCajaActualizar" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacionCrear" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n Crear</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvEntradaSalidaBean.mensajeCaja}"/>
+			    </h:panelGrid>
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacionCrear')}.hide();#{rich:component('popCajaCrear')}.hide();return false;">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacionActualizar" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n Actualizar</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvEntradaSalidaBean.mensajeCaja}"/>
+			    </h:panelGrid>
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacionActualizar')}.hide();#{rich:component('popCajaActualizar')}.hide();return false;">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

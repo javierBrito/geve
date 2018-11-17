@@ -1,0 +1,516 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">#{gvDocumentoBean.nombreEmpresa} - Administraci&#243;n de Informaci&#243;n de Documento</ui:define>
+    <ui:define name="contenido">
+		<script type="text/javascript">
+            function NumCheck(e, field) {
+            	//alert("NumCheck");
+                key = e.keyCode ? e.keyCode : e.which
+                if (key == 9) return true;
+                if (key == 8) return true;
+                if (key > 47 &amp;&amp; key &lt; 58) {
+                    if (field.value == "") return true
+                    regexp = /[0-9]{4}(\.\d{2,2}){0,1}$/
+                    return !(regexp.test(field.value))
+                }
+                if (key == 46) {
+                    if (field.value == "") return false
+                    regexp = /^[0-9]+$/
+                    return regexp.test(field.value)
+                }
+                return false
+            }
+    	</script>
+
+        <h:form id="formBusqueda" style="font-size: 12px; font-weight: bold">
+            <fieldset style="width: 96%; text-align: left">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar Documentos:</b>
+				</legend>            
+
+                <div style="width: 100%" align="center">
+					<rich:panel>
+						<fieldset>
+							<legend class="item-label" align="left" style="font-size: 12px;">
+								<b>Parámetros de busqueda:</b>
+							</legend>
+							<h:panelGrid columns="3">
+
+								<h:outputLabel value="Cliente: " />
+								<rich:select width="20"
+											 value="#{gvDocumentoBean.idClienteBuscar}"
+											 defaultLabel=" seleccione el cliente ">
+									<f:selectItems value="#{gvDocumentoBean.listaGvCliente}"
+												   var="item" itemValue="#{item.idCliente}"
+												   			  itemLabel="#{item.nombres}">
+									</f:selectItems>
+								</rich:select>
+		                		<h:outputLabel value="" />
+						
+		                		<h:outputLabel value="Tipo Documento: " />
+								<rich:select width="20" 
+				        					 value="#{gvDocumentoBean.idTipoDocumentoBuscar}"
+				        			 		 defaultLabel=" seleccione el tipo de documento ">
+					    			<f:selectItems value="#{gvDocumentoBean.listaGvTipoDocumento}" 
+					       						   var="item" itemValue="#{item.idTipoDocumento}" 
+					       				    		          itemLabel="#{item.descripcion}">
+					       			</f:selectItems>
+					    		</rich:select>		                
+		                		<h:outputLabel value="" />
+
+		                		<h:outputLabel value="Estado Documento: " />
+								<rich:select width="20" 
+				        					 value="#{gvDocumentoBean.idEstadoDocumentoBuscar}"
+				        			 		 defaultLabel=" seleccione el estado del documento ">
+					    			<f:selectItems value="#{gvDocumentoBean.listaGvEstadoDocumento}" 
+					       						   var="item" itemValue="#{item.idEstadoDocumento}" 
+					       				    		          itemLabel="#{item.descripcion}">
+					       			</f:selectItems>
+					    		</rich:select>		                
+		                		<h:outputLabel value="" />
+						
+								<a4j:commandButton value="Buscar Documentos" 
+												   render="tblDocumentos"
+												   action="#{gvDocumentoBean.buscarListaPorParametros}" />
+							</h:panelGrid>
+						</fieldset>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px; font-weight: bold">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+                    <rich:panel>
+						<a4j:commandLink render="frm2 tblDocumentos"
+										 action="#{gvDocumentoBean.nuevo()}"
+										 oncomplete="#{rich:component('popDocumentoCrear')}.show();return false;">
+							<h:graphicImage value="/img/nuevo_registro.jpg" alt="Nuevo"
+											title="Ingresar Datos Nuevo Documento" />
+						</a4j:commandLink>
+						<br />
+						<br />
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblDocumentos" >
+                            	<rich:dataTable value="#{gvDocumentoBean.listaGvDocumento}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."> 
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Cliente</f:facet>
+                                    	#{registro.gvCliente.nombres}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Tipo</f:facet>
+                                    	#{registro.gvTipoDocumento.descripcion}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Estado</f:facet>
+                                    	#{registro.gvEstadoDocumento.descripcion}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Items</f:facet>
+                                    	#{registro.numItems}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Subtotal</f:facet>
+                                    	#{registro.mntSubtotal}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">I V A</f:facet>
+                                    	#{registro.mntIva}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">T o t a l</f:facet>
+                                    	#{registro.mntTotal}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm3 pngDocumentoActualizar popDocumentoActualizar olMensajeActualizar"
+                                						 action="#{gvDocumentoBean.editar(registro)}" 
+                                						 oncomplete="#{rich:component('popDocumentoActualizar')}.show(); return false">
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos Documento"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+
+      	<rich:popupPanel id="popDocumentoCrear" autosized="true" moveable="true">
+			<f:facet name="header">Informaci&#243;n Documento + Detalle</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popDocumentoCrear')}.hide(); return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset id="fDocumentoDetalles" style="font-size: 12px; font-weight: bold">
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Documento Crear</b>
+				</legend>
+				<h:form id="frm2">
+		            <h:panelGrid columns="6" >
+		                <h:outputLabel for="cmbCliente1" value="Cliente: " />
+						<rich:select id="cmbCliente1" 
+									 required="true" requiredMessage="Campo obligatorio" 
+				        			 value="#{gvDocumentoBean.gvCliente.idCliente}"
+				        			 defaultLabel=" seleccione el cliente ">
+					    	<f:selectItems value="#{gvDocumentoBean.listaGvCliente}" 
+					       				   var="item" itemValue="#{item.idCliente}" 
+					       				              itemLabel="#{item.nombres}">
+					       				              
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbCliente1"/>
+						
+		                <h:outputLabel for="cmbTipoDocumento1" value="Tipo Documento: " />
+						<rich:select id="cmbTipoDocumento1" 
+				        			 value="#{gvDocumentoBean.gvTipoDocumento.idTipoDocumento}"
+				        			 defaultLabel=" seleccione el tipo de documento ">
+					    	<f:selectItems value="#{gvDocumentoBean.listaGvTipoDocumento}" 
+					       				   var="item" itemValue="#{item.idTipoDocumento}" 
+					       				              itemLabel="#{item.descripcion}">
+					       				              
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbTipoDocumento1"/>
+
+		                <h:outputLabel value="Items: " />
+		                <h:inputText readonly="true" style="width: 20%; text-align: center"   
+		                			 value="#{gvDocumentoBean.gvDocumentoCrear.numItems}" />
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="Subtotal: " />
+		                <h:inputText readonly="true" style="width: 25%; text-align: right"   
+		                			 value="#{gvDocumentoBean.gvDocumentoCrear.mntSubtotal}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="IVA: " />
+		                <h:inputText readonly="true" style="width: 25%; text-align: right" 
+		                			 value="#{gvDocumentoBean.gvDocumentoCrear.mntIva}">
+							<f:convertNumber pattern="#####.##" maxFractionDigits="2" />
+						</h:inputText>
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="Total: " />
+		                <h:inputText readonly="true" style="width: 25%; text-align: right"  
+		                			 value="#{gvDocumentoBean.gvDocumentoCrear.mntTotal}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="Observaciones: " />
+		                <h:inputText style="width: 242%"  
+		                			 value="#{gvDocumentoBean.gvDocumentoCrear.observaciones}" 
+		                			 onkeyup="mayusculas(this)" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+			        </h:panelGrid>
+
+					<h:panelGrid>
+						<h:panelGroup>
+							<rich:dataTable	id="dtDocumentoDetalles1" value="#{gvDocumentoBean.listaGvDocumentoDetalleCrear}"
+											var="registro1" rows="10" styleClass="table"
+											iterationStatusVar="it" noDataLabel="No existen Items..." >
+								<rich:column>
+									<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+								<rich:column>
+									<f:facet name="header">Producto</f:facet>
+									<rich:select required="true" requiredMessage="Campo obligatorio" 
+												 value="#{registro1.gvProducto.idProducto}"
+												 defaultLabel=" seleccione el producto CREAR " >
+										<f:selectItems value="#{gvDocumentoBean.listaGvProducto}"
+													   var="item" itemValue="#{item.idProducto}"
+											   					  itemLabel="#{item.descripcion}" />
+                                   		<f:ajax event="change" render="dtDocumentoDetalles1" 
+                                   				listener="#{gvDocumentoBean.cargarDatosProducto(it.index, registro1.gvProducto.idProducto)}" />
+									</rich:select>
+								</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Stock</f:facet>
+                                    	#{registro1.gvProducto.numExistenciaActual}
+                               	</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Cantidad</f:facet>
+									<h:inputText style="text-align:center" size="2" 
+												 required="true" requiredMessage="Campo obligatorio" 
+												 value="#{registro1.numCantidad}"  
+												 onkeypress="return NumCheck(event, this)" >
+			            			</h:inputText>
+								</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Precio</f:facet>
+                       				#{registro1.precio}
+                   				</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Importe</f:facet>
+									<h:inputText style="text-align:center" size="4" readonly="#{!(gvDocumentoBean.gvTipoDocumento.idTipoDocumento eq 4)}" 
+												 required="true" requiredMessage="Campo obligatorio" 
+												 value="#{registro1.mntImporte}"  
+												 onkeypress="return NumCheck(event, this)" >
+			            			</h:inputText>
+                               	</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Descuento</f:facet>
+                                   	#{registro1.mntDescuento}
+                               	</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Opciones</f:facet>
+									<a4j:commandLink render="frm2" rendered="#{!(registro1.gvProducto.idProducto eq 0) and
+																			    (registro1.mntImporte eq 0.0)}"
+													 action="#{gvDocumentoBean.guardarProducto(registro1, it.index)}" >
+										<h:graphicImage value="/imagenes/guardar-validacion.gif" alt="Guardar Producto"
+														title="Guardar Producto" />
+									</a4j:commandLink>
+		                			<h:outputLabel value="  " />
+									<a4j:commandLink render="frm2" rendered="#{!(registro1.gvProducto.idProducto eq 0) and
+																			   !(registro1.mntImporte eq 0.0)}"
+													 action="#{gvDocumentoBean.eliminarProducto(registro1, it.index)}" >
+										<h:graphicImage value="/img/delete.gif" alt="Eliminar Producto"
+														title="Eliminar Producto" />
+									</a4j:commandLink>
+								</rich:column>
+								<f:facet name="footer">
+									<rich:dataScroller />
+								</f:facet>
+							</rich:dataTable>
+						</h:panelGroup>
+					</h:panelGrid>
+
+	                <h:outputLabel id="olMensajeCrear" value="#{gvDocumentoBean.mensaje}" style="color: blue;" />
+
+					<h:panelGrid columns="2">
+				        <a4j:commandButton render="frm2 tblDocumentos popInformacionCrear olMensajeCrear" 
+				        				   value="Crear Documento" 
+				                		   action="#{gvDocumentoBean.crearDocumento}" execute="@this" 
+										   oncomplete="#{rich:component('popInformacionCrear')}.show(); return false"/>
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popDocumentoCrear" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+
+      	<rich:popupPanel id="popDocumentoActualizar" autosized="true" moveable="true">
+			<f:facet name="header">Informaci&#243;n Documento + Detalle</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popDocumentoActualizar')}.hide(); return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset>
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Documento Actualizar: </b>#{gvDocumentoBean.gvDocumentoActualizar.idDocumento}
+				</legend>
+				<h:form id="frm3">
+		            <h:panelGrid columns="6" >
+						
+		                <h:outputLabel for="cmbCliente2" value="Cliente: " />
+						<rich:select id="cmbCliente2" 
+									 required="true" requiredMessage="Campo obligatorio" 
+				        			 value="#{gvDocumentoBean.gvCliente.idCliente}"
+				        			 defaultLabel=" seleccione el cliente ">
+					    	<f:selectItems value="#{gvDocumentoBean.listaGvCliente}" 
+					       				   var="item" itemValue="#{item.idCliente}" 
+					       				              itemLabel="#{item.nombres}">
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbCliente2"/>
+						
+		                <h:outputLabel for="cmbTipoDocumento2" value="Tipo Documento: " />
+						<rich:select id="cmbTipoDocumento2" 
+				        			 value="#{gvDocumentoBean.gvTipoDocumento.idTipoDocumento}"
+				        			 defaultLabel=" seleccione el tipo de documento ">
+					    	<f:selectItems value="#{gvDocumentoBean.listaGvTipoDocumento}" 
+					       				   var="item" itemValue="#{item.idTipoDocumento}" 
+					       				              itemLabel="#{item.descripcion}">
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbTipoDocumento2"/>
+
+		                <h:outputLabel value="Items: " />
+		                <h:inputText readonly="true" style="width: 20%; text-align: center"   
+		                			 value="#{gvDocumentoBean.gvDocumentoActualizar.numItems}" />
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="Subtotal: " />
+		                <h:inputText readonly="true" style="width: 25%; text-align: right"   
+		                			 value="#{gvDocumentoBean.gvDocumentoActualizar.mntSubtotal}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="IVA: " />
+		                <h:inputText readonly="true" style="width: 25%; text-align: right" 
+		                			 value="#{gvDocumentoBean.gvDocumentoActualizar.mntIva}">
+							<f:convertNumber pattern="#####.##" maxFractionDigits="2" />
+						</h:inputText>
+		                <h:outputLabel value="" />
+
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="Total: " />
+		                <h:inputText readonly="true" style="width: 25%; text-align: right"  
+		                			 value="#{gvDocumentoBean.gvDocumentoActualizar.mntTotal}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="Observaciones: " />
+		                <h:inputText style="width: 242%"  
+		                			 value="#{gvDocumentoBean.gvDocumentoActualizar.observaciones}" 
+		                			 onkeyup="mayusculas(this)"/>
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+			        </h:panelGrid>
+
+					<h:panelGrid>
+						<h:panelGroup>
+							<rich:dataTable	id="dtDocumentoDetalles2" value="#{gvDocumentoBean.listaGvDocumentoDetalleActualizar}"
+											var="registro2" rows="10" styleClass="table"
+											iterationStatusVar="it" noDataLabel="No existen Items..." >
+								<rich:column>
+									<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+								<rich:column>
+									<f:facet name="header">Producto</f:facet>
+									<rich:select required="true" requiredMessage="Campo obligatorio" 
+												 value="#{registro2.gvProducto.idProducto}"
+												 defaultLabel=" seleccione el producto ACTUALIZAR " >
+										<f:selectItems value="#{gvDocumentoBean.listaGvProducto}"
+													   var="item" itemValue="#{item.idProducto}"
+											   					  itemLabel="#{item.descripcion}" />
+                                   			<f:ajax event="change" render="dtDocumentoDetalles2" 
+                                   					listener="#{gvDocumentoBean.cargarDatosProducto(it.index, registro2.gvProducto.idProducto)}" />
+									</rich:select>
+								</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Stock</f:facet>
+                                    	#{registro2.gvProducto.numExistenciaActual}
+                               	</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Cantidad</f:facet>
+									<h:inputText style="text-align:center" size="2" 
+												 required="true" requiredMessage="Campo obligatorio" 
+												 value="#{registro2.numCantidad}"  
+												 onkeypress="return NumCheck(event, this)" >
+			            			</h:inputText>
+								</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Precio</f:facet>
+                       				#{registro2.precio}
+                   				</rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Importe</f:facet>
+                                    #{registro2.mntImporte}
+                                </rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Descuento</f:facet>
+                                    #{registro2.mntDescuento}
+                                </rich:column>
+								<rich:column style="text-align: center">
+									<f:facet name="header">Opciones</f:facet>
+									<a4j:commandLink render="frm3" rendered="#{!(registro2.gvProducto.idProducto eq 0) and
+																			    (registro2.mntImporte eq 0.0)}"
+													 action="#{gvDocumentoBean.guardarProducto(registro2, it.index)}" >
+										<h:graphicImage value="/imagenes/guardar-validacion.gif" alt="Guardar Producto"
+														title="Guardar Producto" />
+									</a4j:commandLink>
+		                			<h:outputLabel value="  " />
+									<a4j:commandLink render="frm3" rendered="#{!(registro2.gvProducto.idProducto eq 0) and
+																			   !(registro2.mntImporte eq 0.0)}"
+													 action="#{gvDocumentoBean.eliminarProducto(registro2, it.index)}" >
+										<h:graphicImage value="/img/delete.gif" alt="Eliminar Producto"
+														title="Eliminar Producto" />
+									</a4j:commandLink>
+								</rich:column>
+								<f:facet name="footer">
+									<rich:dataScroller />
+								</f:facet>
+							</rich:dataTable>
+						</h:panelGroup>
+					</h:panelGrid>
+
+	                <h:outputLabel id="olMensajeActualizar" value="#{gvDocumentoBean.mensaje}" style="color: blue;" />
+
+					<h:panelGrid columns="3">
+				        <a4j:commandButton id="cbActualizarDocumento" render="frm3 tblDocumentos popInformacionActualizar olMensajeActualizar" 
+				        				   value="Actualizar Documento" rendered="#{gvDocumentoBean.visibleCbActualizarDocumento}"
+				                		   action="#{gvDocumentoBean.actualizarDocumento}" execute="@form" 
+										   oncomplete="#{rich:component('popInformacionActualizar')}.show(); return false"/>
+				        <a4j:commandButton id="cbEliminarDocumento" render="frm3 tblDocumentos popInformacionActualizar olMensajeActualizar" 
+				        				   value="Eliminar Documento" rendered="#{gvDocumentoBean.visibleCbEliminarDocumento}"
+				                		   action="#{gvDocumentoBean.crearDocumentoAjuste}" execute="@form" 
+										   oncomplete="#{rich:component('popInformacionActualizar')}.show(); return false"/>
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popDocumentoActualizar" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacionCrear" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n Crear</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvDocumentoBean.mensajeDocumento}"/>
+			    </h:panelGrid>
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacionCrear')}.hide();#{rich:component('popDocumentoCrear')}.hide();return false;">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacionActualizar" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n Actualizar</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvDocumentoBean.mensajeDocumento}"/>
+			    </h:panelGrid>
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacionActualizar')}.hide();#{rich:component('popDocumentoActualizar')}.hide();return false;">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

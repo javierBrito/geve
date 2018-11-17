@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:a4j="http://richfaces.org/a4j"> 
+
+<h:head></h:head> 
+<body>
+	<h:form id="form1">
+		<h1>Lista de Tabla de Prueba</h1>
+		<a4j:commandLink render="form1" value="Crear"
+			action="#{tablaPruebaBean.nuevo()}"
+			oncomplete="#{rich:component('popEntidad')}.show();return false;" />
+
+		<h:dataTable id="dt1" value="#{tablaPruebaBean.listaTablaPrueba}"
+			border="1" var="registro" rows="10" styleClass="table">
+			<h:column>
+				<f:facet name="header">Código</f:facet>
+			#{registro.codigo}
+		</h:column>
+			<h:column>
+				<f:facet name="header">Descripcion</f:facet>
+			#{registro.descripcion}
+		</h:column>
+			<h:column>
+				<f:facet name="header">Valor</f:facet>
+			#{registro.valor}
+		</h:column>
+			<h:column>
+				<f:facet name="header">Editar</f:facet>
+				<a4j:commandLink render="form1 popEntidad"
+								 action="#{tablaPruebaBean.editar(registro)}"
+								 oncomplete="#{rich:component('popEntidad')}.show();return false;">
+					<h:graphicImage value="/img/edit.gif" alt="Editar" title="Editar" />
+				</a4j:commandLink>
+			</h:column>
+			<h:column>
+				<f:facet name="header">Eliminar</f:facet>
+				<h:commandLink render="form1"
+							   action="#{tablaPruebaBean.editar(registro)}"
+							   oncomplete="#{rich:component('popEntidad')}.show();return false;">
+					<h:graphicImage value="/img/edit.gif" alt="Eliminar" title="Eliminar" />
+				</h:commandLink>
+			</h:column>
+		</h:dataTable>
+	</h:form>
+
+	<rich:popupPanel id="popEntidad" autosized="true" moveable="true">
+		<f:facet name="header">TablaPrueba</f:facet>
+		<h:form id="frm2">
+			<h:panelGrid columns="2" rendered="true">
+				<h:outputLabel value="Código: " />
+				<h:inputText value="#{tablaPruebaBean.codigo}" disabled="true" />
+				<h:outputLabel value="Descripción: " />
+				<h:inputText id="txtDescripcion" required="true"
+							 requiredMessage="Campo obligatorio" onkeyup="mayusculas(this)"
+							 size="50" maxlength="50" value="#{tablaPruebaBean.descripcion}" />
+				<h:outputLabel value="Valor: " />
+				<h:inputText id="numValor" required="true"
+							 requiredMessage="Campo obligatorio"
+							 value="#{tablaPruebaBean.valor}" />
+
+				<a4j:commandButton render="form1" value="Guardar"
+								action="#{tablaPruebaBean.guardar}" execute="frm2"
+					oncomplete="if('#{facesContext.maximumSeverity}'.indexOf('ERROR') &lt; 0) #{rich:component('popInformacion')}.show();return false;" />
+				<a4j:commandButton value="Cancelar">
+					<rich:componentControl target="popEntidad" operation="hide" />
+				</a4j:commandButton>
+			</h:panelGrid>
+		</h:form>
+	</rich:popupPanel>
+
+	<rich:popupPanel id="popInformacion" width="350" height="100">
+		<f:facet name="header">Informaci&#243;n</f:facet>
+		<h:form>
+			<h:panelGrid columns="2">
+				<h:outputLabel value="#{tablaPruebaBean.mensaje}" />
+			</h:panelGrid>
+			<a4j:commandButton value="Aceptar"
+				oncomplete="#{rich:component('popInformacion')}.hide();#{rich:component('popEntidad')}.hide();return false;">
+			</a4j:commandButton>
+		</h:form>
+	</rich:popupPanel>
+
+</body> 
+</html>

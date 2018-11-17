@@ -1,0 +1,34 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	template="/plantillas/contenedor.xhtml">
+    <ui:define name="titulo">
+        Error del Sistema
+    </ui:define>
+    <ui:define name="contenido">
+        <h:form>
+    		<div class="ui-messages-error ui-corner-all">
+	            <span class="ui-messages-error-icon"></span>
+	            <span class="ui-messages-error-summary">Error inesperado:</span>
+	            <span class="ui-messages-error-detail">#{errorController.mensaje}</span>
+	        </div>
+	        <br/>
+	        <a4j:commandButton value="Ver Detalle" onclick="#{rich:component('panelDetalle')}.show()"/>
+	        <a4j:commandButton value="Volver" onclick="history.back();"/>
+	        <br/>
+	    	</h:form>
+        	<h:form>
+        		<rich:popupPanel id="panelDetalle" header="Detalle de Error" modal="true" width="750" height="400">
+        			<f:facet name="controls">
+			            <h:outputLink value="#" onclick="#{rich:component('panelDetalle')}.hide(); return false;">
+			                X
+			            </h:outputLink>
+			        </f:facet>
+            		<pre style="font-size: 10px;">#{errorController.stackTrace}</pre>
+            	</rich:popupPanel>
+            </h:form>
+    </ui:define>
+</ui:composition>

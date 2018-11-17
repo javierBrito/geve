@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:educacion="http://www.educacion.gob.ec/jsf/components/">
+
+<body>
+	<ui:composition>
+		<h:form name="menu">
+			<educacion:menu value="#{sessionController.menu}"></educacion:menu>
+			<link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/menu.css" />
+			<script type="text/javascript" src="#{request.contextPath}/js/menu.js" />
+		</h:form>
+	</ui:composition>
+</body>
+</html>

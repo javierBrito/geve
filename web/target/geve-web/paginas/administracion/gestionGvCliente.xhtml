@@ -1,0 +1,248 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">#{gvClienteBean.nombreEmpresa} - Administraci&#243;n de Informaci&#243;n de Cliente</ui:define>
+    <ui:define name="contenido">
+        <h:form id="formBusqueda">
+            <fieldset style="width: 96%; text-align: left;">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar Clientes:</b>
+				</legend>            
+
+                <div style="width: 100%" align="center">
+					<rich:panel>
+						<fieldset>
+						<h:panelGrid columns="2">
+							<h:panelGroup>
+								<b><h:outputText value="Buscar por: " /></b>
+							</h:panelGroup>
+							<h:selectOneRadio value="#{gvClienteBean.opcionBusqueda}">
+								<f:selectItem itemLabel="Identificaci&#243;n" itemValue="1" />
+								<f:selectItem itemLabel="Apellidos y nombres" itemValue="2" />
+								<a4j:ajax execute="@this"
+										  render="@this idLabel idCampo labelApell apellido labelNombre nombre tblClientes"
+										  listener="#{gvClienteBean.limpiarVariablesBusqueda()}">
+								</a4j:ajax>
+							</h:selectOneRadio>
+
+							<h:panelGroup id="idLabel">
+								<b><h:outputText value="Identificaci&#243;n:"
+										rendered="#{gvClienteBean.opcionBusqueda==1}" /></b>
+							</h:panelGroup>
+
+							<h:panelGroup id="idCampo">
+								<h:inputText id="identificacion"
+											 value="#{gvClienteBean.identificacionBuscar}"
+											 onkeyup="mayusculas(this)" style="width:30%"
+											 rendered="#{gvClienteBean.opcionBusqueda==1}" maxlength="10">
+									<a4j:ajax execute="@this" render="@this identificacion"></a4j:ajax>
+								</h:inputText>
+								<a4j:commandButton value="Buscar" render="tblClientes"
+												   rendered="#{gvClienteBean.opcionBusqueda==1}"
+												   action="#{gvClienteBean.buscarPorDni}" />
+							</h:panelGroup>
+
+							<h:panelGroup id="labelApell">
+								<b><h:outputText value="Apellidos:"
+										rendered="#{gvClienteBean.opcionBusqueda==2}" /></b>
+							</h:panelGroup>
+							<h:panelGroup id="apellido">
+								<h:inputText value="#{gvClienteBean.apellidosBuscar}"
+											 onkeyup="mayusculas(this)" style="width:70%"
+											 rendered="#{gvClienteBean.opcionBusqueda==2}">
+									<a4j:ajax execute="@this" render="@this apellido"></a4j:ajax>
+								</h:inputText>
+							</h:panelGroup>
+							<h:panelGroup id="labelNombre">
+								<b><h:outputText value="Nombres:"
+												 rendered="#{gvClienteBean.opcionBusqueda==2}" /></b>
+							</h:panelGroup>
+							<h:panelGroup id="nombre">
+								<h:inputText value="#{gvClienteBean.nombresBuscar}"
+											 onkeyup="mayusculas(this)" style="width:70%"
+											 rendered="#{gvClienteBean.opcionBusqueda==2}">
+									<a4j:ajax execute="@this" render="@this nombre"></a4j:ajax>
+								</h:inputText>
+								<a4j:commandButton value="Buscar" render="tblClientes"
+												   rendered="#{gvClienteBean.opcionBusqueda==2}"
+												   action="#{gvClienteBean.buscarPorNombres}" />
+							</h:panelGroup>
+						</h:panelGrid>
+						</fieldset>
+						<a4j:commandLink id="btnNuevo"
+										 render="frm2 tblClientes pngClientes popClientes"
+										 action="#{gvClienteBean.nuevo()}"
+										 oncomplete="#{rich:component('popClientes')}.show();return false;">
+							<h:graphicImage value="/img/nuevo_registro.jpg" alt="Nuevo"
+											title="Ingresar Datos Nuevo Cliente" />
+						</a4j:commandLink>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+                    <rich:panel>
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblClientes">
+                            	<rich:dataTable value="#{gvClienteBean.listaGvClientes}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."> 
+                                	<rich:column>
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Identificación</f:facet>
+                                    	#{registro.dni}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Nombres</f:facet>
+                                    	#{registro.nombres}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Apellidos</f:facet>
+                                    	#{registro.apellidos}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Tipo Cliente</f:facet>
+                                    	#{registro.gvTipoCliente.descripcion}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Movil</f:facet>
+                                    	#{registro.movil}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Email</f:facet>
+                                    	#{registro.email}
+                                	</rich:column>
+                                	<rich:column style="text-align: center;">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm2" 
+                                						 action="#{gvClienteBean.editar(registro)}" 
+                                						 oncomplete="#{rich:component('popClientes')}.show();return false;">
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos Cliente"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+
+      	<rich:popupPanel id="popClientes" autosized="true" moveable="true">
+			<f:facet name="header">Informaci&#243;n Cliente</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popClientes')}.hide(); return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset  id="fieldset1" style="text-align: left;">
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Cliente</b>
+				</legend>
+				<h:form id="frm2">
+		            <h:panelGrid id="pngClientes" columns="3" rendered="true">
+						
+		                <h:outputLabel for="cmbTipoCliente" value="Tipo Cliente: " />
+						<rich:select id="cmbTipoCliente" required="true" requiredMessage="Campo obligatorio"
+									 width="20" 
+				        			 value="#{gvClienteBean.gvTipoCliente.idTipoCliente}"
+				        			 defaultLabel=" seleccione el tipo de cliente ">
+					    	<f:selectItems value="#{gvClienteBean.listaGvTipoCliente}" 
+					       				   var="item" itemValue="#{item.idTipoCliente}" 
+					       				              itemLabel="#{item.descripcion}">
+					       				              
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbTipoCliente"/>
+		                
+		                <h:outputLabel for="identificacion" value="Identificaci&#243;n: " />
+		                <h:inputText id="identificacion" value="#{gvClienteBean.gvCliente.dni}" 
+		                			 onkeyup="mayusculas(this)" maxlength="10" required="true" requiredMessage="Campo obligatorio" />
+		                <rich:message for="identificacion"/>
+		            
+		                <h:outputLabel for="apellidos" value="Apellidos: " />
+		                <h:inputText id="apellidos" value="#{gvClienteBean.gvCliente.apellidos}" 
+		                			 onkeyup="mayusculas(this)" maxlength="25" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="apellidos"/>
+		
+		                <h:outputLabel for="nombres" value="Nombres: " />
+		                <h:inputText id="nombres" value="#{gvClienteBean.gvCliente.nombres}" 
+		                			 onkeyup="mayusculas(this)" maxlength="255" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="nombres"/>
+		                
+		                <h:outputLabel for="direccion" value="Direcci&#243;n: " />
+		                <h:inputTextarea id="direccion" value="#{gvClienteBean.gvCliente.direccion}" 
+		                				 onkeyup="mayusculas(this)" maxlength="255" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="direccion"/>
+		                
+		                <h:outputLabel for="telefono" value="Tel&#233;fono:" />
+		                <h:inputText id="telefono" value="#{gvClienteBean.gvCliente.telefono}" maxlength="9" validatorMessage="Valor ingresado no v&#225;lido"  required="true" requiredMessage="Campo obligatorio">
+		                	<f:ajax execute="@this" render="msjTelefono telefono" />               
+						<f:validateRegex pattern="[0-9]{9}" /> 
+						</h:inputText>
+		                <rich:message for="telefono" id="msjTelefono"/>
+		                
+		                <h:outputLabel for="movil" value="Movil: " />
+		                <h:inputText id="movil" value="#{gvClienteBean.gvCliente.movil}" maxlength="10" validatorMessage="Valor ingresado no v&#225;lido" required="true" requiredMessage="Campo obligatorio">
+		                	<f:ajax execute="@this" render="msjMovil movil" />               
+						<f:validateRegex pattern="[0-9]{10}" /> 
+		                </h:inputText>
+		                <rich:message for="movil" id="msjMovil"/>
+		                
+		                <h:outputLabel for="correo" value="Correo Electr&#243;nico:" />
+		                <h:inputText id="correo" value="#{gvClienteBean.gvCliente.email}" maxlength="50" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="correo"/>
+		                
+		                <h:outputLabel for="genero" value="Género: " />
+						<h:selectOneMenu id="genero" value="#{gvClienteBean.gvCliente.genero}">
+  							<f:selectItem itemLabel="Masculino" itemValue="M" />
+                    		<f:selectItem itemLabel="Femenino" itemValue="F"/>
+						</h:selectOneMenu>
+		                <rich:message for="genero"/>
+
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+
+				        <a4j:commandButton render="tblClientes pngClientes popInformacion" value="Guardar" 
+				                		   action="#{gvClienteBean.guardar}" execute="frm2"
+										   oncomplete="if('#{facesContext.maximumSeverity}'.indexOf('ERROR') &lt; 0) #{rich:component('popInformacion')}.show();return false;"/>
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popClientes" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacion" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvClienteBean.mensaje}"/>
+			    </h:panelGrid>
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacion')}.hide();#{rich:component('popClientes')}.hide();return false;">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

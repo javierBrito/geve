@@ -1,0 +1,124 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">#{gvKardexFechaBean.nombreEmpresa} - Reporte Stock Diferencias</ui:define>
+    <ui:define name="contenido">
+        <h:form id="formBusqueda">
+            <fieldset style="width: 96%; text-align: left;">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar Stock Diferencias:</b>
+				</legend>            
+                <div style="width: 100%" align="center">
+					<rich:panel>
+						<h:panelGrid columns="3">
+							<h:outputLabel value="Producto: " />
+							<rich:select width="20"
+										 value="#{gvKardexFechaBean.idProductoBuscar}"
+										 defaultLabel=" seleccione el producto ">
+								<f:selectItems value="#{gvKardexFechaBean.listaGvProducto}"
+											   var="item" itemValue="#{item.idProducto}"
+											   			  itemLabel="#{item.descripcion}">
+								</f:selectItems>
+							</rich:select>
+		                	<h:outputLabel value="" />
+
+			            	<h:outputLabel for="cFechaAnterior" value="Fecha Anterior: "/>
+			            	<rich:calendar id="cFechaAnterior" required="true" requiredMessage="Campo obligatorio"
+			            				   value="#{gvKardexFechaBean.fechaAnterior}"
+			            	   			   datePattern="dd/MM/yyyy"/> 
+				        	<rich:message for="cFechaAnterior" style="color: red;"></rich:message>
+			                	
+			            	<h:outputLabel for="cFechaActual" value="Fecha Actual: "/>
+			            	<rich:calendar id="cFechaActual" required="true" requiredMessage="Campo obligatorio"
+			            				   value="#{gvKardexFechaBean.fechaActual}"
+			            	   			   datePattern="dd/MM/yyyy"/> 
+				        	<rich:message for="cFechaActual" style="color: red;"></rich:message>
+						
+							<a4j:commandButton value="Buscar Registros" 
+											   render="tblKardexs btnExcel olMensaje"
+											   action="#{gvKardexFechaBean.buscarListaPorParametros}" />
+						</h:panelGrid>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+					<a4j:commandLink id="btnExcel" render="olMensaje"
+									 disabled="#{empty gvKardexFechaBean.listaGvKardexFechaAnterior}"
+									 action="#{gvKardexFechaBean.exportarExcel()}">
+						<h:graphicImage value="/img/excel.png" alt="Excel"
+										title="Exportar a Excel" />
+					</a4j:commandLink>
+					<div>
+			    		<h:outputLabel id="olMensaje" value="#{gvKardexFechaBean.mensaje}" style="color:blue"/>
+			    	</div>
+                    <rich:panel>
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblKardexs" >
+                            	<rich:dataTable value="#{gvKardexFechaBean.listaGvKardexStockDiferencias}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."> 
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Producto</f:facet>
+                                    	#{registro.idProducto}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Descripción</f:facet>
+                                    	#{registro.descripcion}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Código</f:facet>
+                                    	#{registro.codigo}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Cantidad Anterior</f:facet>
+                                    	#{registro.numExistenciaAnterior}
+                                	</rich:column>
+                                	<rich:column style="text-align: center; font-weight: bold; color: blue;">
+                                    	<f:facet name="header">Cantidad Actual</f:facet>
+                                    	#{registro.numExistenciaActual}
+                                	</rich:column>
+                                	<rich:column style="text-align: center; font-weight: bold; color: green;">
+                                    	<f:facet name="header">Diferencia</f:facet>
+                                    	#{registro.numDiferencia}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="tblKardexs olMensaje" rendered="#{!registro.registroVerificado}" 
+                                						 disabled="#{registro.numExistenciaAnterior eq 0 or 
+                                						 			 registro.numExistenciaActual eq 0}"
+                                						 action="#{gvKardexFechaBean.verificar(registro, it.index)}">
+                                    		<h:graphicImage value="/img/proceso2.png" alt="verificar registro" title="verificar registro"/>
+                                    	</a4j:commandLink>
+                               			<a4j:commandLink render="tblKardexs olMensaje" rendered="#{registro.registroVerificado}"
+                               							 action="#{gvKardexFechaBean.verificar(registro, it.index)}">
+                                   			<h:graphicImage value="/img/check.jpeg" alt="registro verificado" title="registro verificado"/>
+                                   		</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

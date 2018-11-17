@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+    
+    <beans:bean id="projectPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <beans:property name="location" value="classpath:application.properties"/>
+    </beans:bean>
+    
+    <http auto-config="true" entry-point-ref="casAuthEntryPoint" use-expressions="true">
+        <intercept-url pattern="/javax.faces.resource/**" access="permitAll"/>
+        <intercept-url pattern="/css/**" access="permitAll"/>
+        <intercept-url pattern="/js/**" access="permitAll"/>
+        <intercept-url pattern="/img/**" access="permitAll"/>
+        <intercept-url pattern="/faces/rfRes/**" access="permitAll"/>
+        <intercept-url pattern="/faces/javax.faces.resource/**" access="permitAll"/>
+        <intercept-url pattern="/paginas/error/**" access="permitAll"/>
+        <intercept-url pattern="/faces/paginas/externo/**" access="permitAll"/>
+        <intercept-url pattern="/**" access="isFullyAuthenticated()" />
+        <custom-filter ref="casAuthenticationFilter" position="CAS_FILTER"/>
+        <logout logout-url="/logout" logout-success-url="${cas.protocol}://${cas.ip}:${cas.port}/${cas.context}/logout" />
+    </http>
+
+    <beans:bean id="casAuthEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
+        <beans:property name="loginUrl" value="${cas.protocol}://${cas.ip}:${cas.port}/${cas.context}/" />
+        <beans:property name="serviceProperties" ref="casService" />
+    </beans:bean>
+
+    <beans:bean id="casService" class="org.springframework.security.cas.ServiceProperties">
+        <beans:property name="service" value="${app.protocol}://${app.ip}:${app.port}/${app.context}/j_spring_cas_security_check" />
+        <!-- beans:property name="service" value="${app.protocol}://localhost:${app.port}/${app.context}/j_spring_cas_security_check" /-->
+    </beans:bean>
+
+    <beans:bean id="casAuthenticationFilter" class="org.springframework.security.cas.web.CasAuthenticationFilter">
+        <beans:property name="authenticationManager" ref="authenticationManager"/>
+    </beans:bean>
+
+    <beans:bean id="casAuthenticationProvider" class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
+        <beans:property name="ticketValidator" ref="casTicketValidator"/>
+        <beans:property name="serviceProperties" ref="casService"/>
+        <beans:property name="key" value="educacion"/>
+        <beans:property name="authenticationUserDetailsService" ref="authenticationUserDetailsService"/>
+    </beans:bean>
+
+    <beans:bean id="casTicketValidator" class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+        <beans:constructor-arg value="${cas.local.protocol}://${cas.local.ip}:${cas.local.port}/${cas.context}/"/>
+    </beans:bean>
+
+    <beans:bean id="authenticationUserDetailsService" class="org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper">
+        <beans:property name="userDetailsService" ref="jdbcUserService"/>
+    </beans:bean>
+
+    <authentication-manager alias="authenticationManager" erase-credentials="false">
+        <authentication-provider ref="casAuthenticationProvider"/>
+    </authentication-manager>
+	
+    <beans:bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter" />
+
+    <beans:bean id="requestSingleLogoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+        <beans:constructor-arg value="${cas.protocol}://${cas.ip}:${cas.port}/${cas.context}/logout" />
+        <beans:constructor-arg>
+            <beans:bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
+        </beans:constructor-arg>
+        <beans:property name="filterProcessesUrl" value="/j_spring_cas_security_logout" />
+    </beans:bean>
+	
+	<beans:bean id="dataSource"	class="org.springframework.jndi.JndiObjectFactoryBean">
+		<beans:property name="jndiName"	value="java:jboss/datasources/seguridades-dsmysql" />
+	</beans:bean>
+
+    <beans:bean id="jdbcUserService"
+		class="ec.gob.educacion.security.EducacionJdbcDaoImpl">
+		<beans:property name="dataSource" ref="dataSource" />
+		<beans:property name="enableGroups" value="false" />
+		<beans:property name="enableAuthorities" value="true" />
+		<beans:property name="usersByUsernameQuery">
+			<beans:value>
+				SELECT U.IDENTIFICACION, 
+				       CU.CLAVE,
+				       CONCAT(U.NOMBRES,' ',U.APELLIDOS) 
+				  FROM SEG_USUARIO U, 
+				       SEG_CLAVE_USUARIO CU 
+				 WHERE U.CODIGO = CU.COD_USUARIO 
+				   AND U.IDENTIFICACION = ? 
+				   AND CU.FECHA_FIN IS NULL
+			</beans:value>
+		</beans:property>
+		<beans:property name="authoritiesByUsernameQuery">
+			<beans:value>
+				SELECT DISTINCT U.IDENTIFICACION, 
+				       RA.NOMBRE
+				  FROM SEG_USUARIO U, 
+				       SEG_ROL_APLICACION RA, 
+				       SEG_USUARIO_ROL_APLICACION URA, 
+				       SEG_APLICACION A 
+				 WHERE A.CODIGO = RA.COD_APLICACION
+				   AND RA.CODIGO = URA.COD_ROL_APLICACION
+				   AND U.CODIGO = URA.COD_USUARIO
+				   AND URA.FECHA_FINAL IS NULL
+				   AND A.PREFIJO = '${app.code}'
+				   AND U.IDENTIFICACION = ?
+			</beans:value>
+		</beans:property>
+	</beans:bean>
+
+</beans:beans>

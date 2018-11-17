@@ -1,0 +1,377 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">#{gvProductoBean.nombreEmpresa} - Administraci&#243;n Producto</ui:define>
+    <ui:define name="contenido">
+		<script type="text/javascript">
+            function NumCheck(e, field) {
+            	//alert("NumCheck");
+                key = e.keyCode ? e.keyCode : e.which
+                if (key == 9) return true;
+                if (key == 8) return true;
+                if (key > 47 &amp;&amp; key &lt; 58) {
+                    if (field.value == "") return true
+                    regexp = /[0-9]{4}(\.\d{2,2}){0,1}$/
+                    return !(regexp.test(field.value))
+                }
+                if (key == 46) {
+                    if (field.value == "") return false
+                    regexp = /^[0-9]+$/
+                    return regexp.test(field.value)
+                }
+                return false
+            }
+
+            function copiar(item) {
+            	//alert("restar(item)");
+            	//v1 = identificador de la forma que contiene los atributos a procesar. (jbrito-20161013)
+                var v1 = item.id.substring(0 , item.id.length - 14); //El valor 14 = # caracteres del nombre atributo ej: precioDeCosto1
+                var n1 = parseFloat(document.getElementById(v1 + "precioDeCosto1").value);
+                var n2 = parseFloat(document.getElementById(v1 + "precioPorMayor").value);
+                var n3 = parseFloat(document.getElementById(v1 + "precioPorMenor").value);
+
+                if(n1 + "" == "NaN") n1 = 0;
+                if(n2 + "" == "NaN") n2 = 0;
+                if(n3 + "" == "NaN") n3 = 0;
+                
+				n2 = n1;
+				n3 = n1;
+            	//alert(total);
+                var s1 = document.getElementById(v1 + "precioPorMayor");
+                s1.value = n2.toString().substr(0, 4); 
+                var s2 = document.getElementById(v1 + "precioPorMenor");
+                s2.value = n3.toString().substr(0, 4); 
+            }
+
+		</script>
+
+        <h:form id="formBusqueda" style="font-size: 11px; font-weight: bold">
+            <fieldset style="width: 96%; text-align: left;">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar Productos:</b>
+				</legend>            
+
+                <div style="width: 100%" align="center">
+					<rich:panel>
+						<fieldset>
+						<rich:focus preserve="true" />
+						<h:panelGrid columns="2">
+							<h:panelGroup>
+								<b><h:outputText value="Buscar por: " /></b>
+							</h:panelGroup>
+							<h:selectOneRadio value="#{gvProductoBean.opcionBusqueda}" style="font-size: 12px; font-weight: bold" >
+								<f:selectItem itemLabel="C&#243;digo" itemValue="1" />
+								<f:selectItem itemLabel="Descripci&#243;n" itemValue="2" />
+								<a4j:ajax execute="@this"
+										  render="@this idLabel idCampo labelDescripcion descripcion tblProductos"
+										  listener="#{gvProductoBean.limpiarVariablesBusqueda()}">
+								</a4j:ajax>
+							</h:selectOneRadio>
+
+							<h:panelGroup id="idLabel">
+								<b><h:outputText value="C&#243;digo:"
+												 rendered="#{gvProductoBean.opcionBusqueda==1}" /></b>
+							</h:panelGroup>
+							<h:panelGroup id="idCampo">
+								<h:inputText id="codigo" style="width:50%"
+											 value="#{gvProductoBean.codigoBuscar}"
+											 onkeyup="mayusculas(this)" 
+											 rendered="#{gvProductoBean.opcionBusqueda==1}" maxlength="20">
+									<a4j:ajax execute="@this" render="@this"></a4j:ajax>
+								</h:inputText>
+								<a4j:commandButton value="Buscar por Código" render="tblProductos"
+												   rendered="#{gvProductoBean.opcionBusqueda==1}"
+												   action="#{gvProductoBean.buscarPorCodigo}" />
+							</h:panelGroup>
+
+							<h:panelGroup id="labelDescripcion">
+								<b><h:outputText value="Descripci&#243;n:"
+												 rendered="#{gvProductoBean.opcionBusqueda==2}" /></b>
+							</h:panelGroup>
+							<h:panelGroup id="descripcion">
+								<h:inputText value="#{gvProductoBean.descripcionBuscar}"
+											 onkeyup="mayusculas(this)" style="width:40%"
+											 rendered="#{gvProductoBean.opcionBusqueda==2}">
+									<a4j:ajax execute="@this" render="@this"></a4j:ajax>
+								</h:inputText>
+								<a4j:commandButton value="Buscar por Descripción" render="tblProductos"
+												   rendered="#{gvProductoBean.opcionBusqueda==2}"
+												   action="#{gvProductoBean.buscarPorDescripcion}" />
+							</h:panelGroup>
+						</h:panelGrid>
+						</fieldset>
+						<a4j:commandLink id="btnNuevo"
+										 render="frm2 tblProductos pngProductos popProductos"
+										 action="#{gvProductoBean.nuevo()}"
+										 oncomplete="#{rich:component('popProductos')}.show();return false;">
+							<h:graphicImage value="/img/nuevo_registro.png" alt="Nuevo"
+											title="Ingresar Nuevo Producto" />
+						</a4j:commandLink>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+                    <rich:panel>
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblProductos" >
+                            	<rich:dataTable value="#{gvProductoBean.listaGvProductos}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."
+                                    	        style="font-size: 11px; font-weight: bold" > 
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">No.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<!-- <rich:column>
+                                    	<f:facet name="header">Código</f:facet>
+                                    	#{registro.codigo}
+                                	</rich:column> -->
+                                	<rich:column>
+                                    	<f:facet name="header">Descripción</f:facet>
+                                    	#{registro.descripcion}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">U.Medida</f:facet>
+                                    	#{registro.gvUnidad.nemonico}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">P.Compra</f:facet>
+                                    	#{registro.precioDeCompra}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">P.V.P.</f:facet>
+                                    	#{registro.precioDeCosto}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">P.Especial</f:facet>
+                                    	#{registro.precioPorMayor}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">PxMayor</f:facet>
+                                    	#{registro.precioPorMenor}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Stock</f:facet>
+                                    	#{registro.numExistenciaActual}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Stock Mínimo</f:facet>
+                                    	#{registro.numExistenciaMinima}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">IVA</f:facet>
+                                    	#{registro.desAplicaIva}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Imágen</f:facet>
+		                				<h:graphicImage value="#{registro.pathImagen}" width="50" height="50" />
+		                			</rich:column>
+                                	<rich:column style="text-align: center;">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm2 popProductos" 
+                                						 action="#{gvProductoBean.editar(registro)}" 
+                                						 oncomplete="#{rich:component('popProductos')}.show();return false;">
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos Producto"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+
+      	<rich:popupPanel id="popProductos" autosized="true" moveable="true" style="font-size: 12px; font-weight: bold" >
+			<f:facet name="header">Informaci&#243;n Producto</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popProductos')}.hide(); return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset  id="fieldset1" style="text-align: left;">
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Producto</b>
+				</legend>
+				<h:form id="frm2">
+		            <h:panelGrid id="pngProductos" columns="3" rendered="true" style="font-size: 12px; font-weight: bold">
+		                
+		                <h:outputLabel for="cmbClase" value="Clase Producto: " />
+						<rich:select id="cmbClase" required="true" requiredMessage="Campo obligatorio" width="20" 
+				        			 value="#{gvProductoBean.gvClase.idClase}"
+				        			 defaultLabel=" seleccione la clase del producto ">
+					    	<f:selectItems value="#{gvProductoBean.listaGvClase}" 
+					       				   var="item" itemValue="#{item.idClase}" 
+					       				              itemLabel="#{item.descripcion}">
+					       				              
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbClase"/>
+		                
+		                <h:outputLabel for="cmbMarca" value="Marca Producto: " />
+						<rich:select id="cmbMarca" required="true" requiredMessage="Campo obligatorio" width="20" 
+				        			 value="#{gvProductoBean.gvMarca.idMarca}"
+				        			 defaultLabel=" seleccione la marca del producto ">
+					    	<f:selectItems value="#{gvProductoBean.listaGvMarca}" 
+					       				   var="item" itemValue="#{item.idMarca}" 
+					       				              itemLabel="#{item.descripcion}">
+					       				              
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbMarca"/>
+
+		                <h:outputLabel for="cmbUnidad" value="Unidad Producto: " />
+						<rich:select id="cmbUnidad" required="true" requiredMessage="Campo obligatorio" width="20" 
+				        			 value="#{gvProductoBean.gvUnidad.idUnidad}"
+				        			 defaultLabel=" seleccione la unidad del producto ">
+					    	<f:selectItems value="#{gvProductoBean.listaGvUnidad}" 
+					       				   var="item" itemValue="#{item.idUnidad}" 
+					       				              itemLabel="#{item.nemonico}">
+					       				              
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbUnidad"/>
+		                
+		                <h:outputLabel for="codigo" value="C&#243;digo de Barras: " />
+		                <h:inputText id="codigo" value="#{gvProductoBean.gvProducto.codigo}"
+		                			 style="width:200px"
+		                			 onkeyup="mayusculas(this)" maxlength="20" />
+		                <h:outputLabel value="" />
+		            
+		                <h:outputLabel for="descripcion" value="Descripción: " />
+		                <h:inputTextarea id="descripcion" value="#{gvProductoBean.gvProducto.descripcion}" style="width:200px"
+		                			 	 onkeyup="mayusculas(this)" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="descripcion"/>
+		
+		                <h:outputLabel for="precioDeCompra1" value="Precio de Compra: " />
+  			            <h:inputText id="precioDeCompra1" size="4" style="text-align: right" readonly="true" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvProductoBean.gvProducto.precioDeCompra}"
+			            			 onkeyup="copiar(this)"
+			            			 onkeypress="return NumCheck(event, this)">
+			            	<f:validateLongRange minimum="0" maximum="9999"/>
+			            </h:inputText>
+		                <rich:message for="precioDeCompra1" />
+		
+		                <h:outputLabel for="precioDeCosto1" value="P.V.P.: " />
+  			            <h:inputText id="precioDeCosto1" size="4" style="text-align: right" readonly="false" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvProductoBean.gvProducto.precioDeCosto}"
+			            			 onkeyup="copiar(this)"
+			            			 onkeypress="return NumCheck(event, this)">
+			            	<f:validateLongRange minimum="0" maximum="9999"/>
+			            </h:inputText>
+		                <rich:message for="precioDeCosto1" />
+		
+		                <h:outputLabel for="precioPorMayor" value="Precio Especial: " />
+  			            <h:inputText id="precioPorMayor" size="4" style="text-align: right" readonly="false" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvProductoBean.gvProducto.precioPorMayor}"
+			            			 onkeypress="return NumCheck(event, this)">
+			            	<f:validateLongRange minimum="0" maximum="9999"/>
+			            </h:inputText>
+		                <rich:message for="precioPorMayor" />
+		
+		                <h:outputLabel for="precioPorMenor" value="Precio por Mayor: " />
+  			            <h:inputText id="precioPorMenor" size="4" style="text-align: right" readonly="false" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvProductoBean.gvProducto.precioPorMenor}"
+			            			 onkeypress="return NumCheck(event, this)">
+			            	<f:validateLongRange minimum="0" maximum="9999"/>
+			            </h:inputText>
+		                <rich:message for="precioPorMenor" />
+		
+		                <h:outputLabel for="numExistenciaActual" value="Existencia (Stock): " />
+  			            <h:inputText id="numExistenciaActual" size="4" style="text-align: right" readonly="true" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvProductoBean.gvProducto.numExistenciaActual}"
+			            			 onkeypress="return NumCheck(event, this)">
+			            	<f:validateLongRange minimum="0" maximum="9999"/>
+			            </h:inputText>
+		                <rich:message for="numExistenciaActual" />
+
+		                <h:outputLabel for="numExistenciaMinima" value="Stock Mínimo: " />
+  			            <h:inputText id="numExistenciaMinima" size="4" style="text-align: right" readonly="false" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvProductoBean.gvProducto.numExistenciaMinima}"
+			            			 onkeypress="return NumCheck(event, this)">
+			            	<f:validateLongRange minimum="0" maximum="9999"/>
+			            </h:inputText>
+		                <rich:message for="numExistenciaMinima" />
+
+		                <h:outputLabel for="imagen" value="Imágen: " />
+						<rich:fileUpload id="imagen" acceptedTypes="png"
+										 render="pgImagen" style="width: 240px;"
+										 addLabel="Subir"
+										 clearAllLabel="Cambiar" clearLabel=" "
+										 doneLabel="Carga exitosa"
+										 sizeExceededLabel="El tamaño del archivo debe ser menor a 2MB"
+										 ontyperejected="alert('Solamente archivos de formato PNG');"
+										 fileUploadListener="#{gvProductoBean.respaldarImagen}"
+										 listHeight="10" immediateUpload="true" maxFilesQuantity="1" />
+		                <rich:message for="imagen"/>
+
+		                <h:panelGroup>
+		                	<h:outputLabel value="Verificar Imagen: " />
+		                </h:panelGroup>
+		                <h:panelGroup id="pgImagen">
+		                	<h:graphicImage value="#{gvProductoBean.gvProducto.pathImagen}" width="50" height="50" />
+		                </h:panelGroup>
+		                <h:outputLabel value="" />
+		                
+		                <h:outputLabel for="aplicaIva" value="Aplica IVA?: " />
+                    	<h:selectOneRadio id="aplicaIva" required="true" requiredMessage="Campo obligatorio"
+                    					  value="#{gvProductoBean.gvProducto.aplicaIva}" 
+                    					  valueChangeListener="#{gvProductoBean.procesoAplicaIva}">
+                        	<a4j:ajax event="click" render="" />
+                        	<f:selectItem itemLabel="Si" itemValue="1"/>
+                        	<f:selectItem itemLabel="No" itemValue="0"/>
+                    	</h:selectOneRadio>
+		                <rich:message for="aplicaIva"/>
+
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+		                <h:outputLabel value="" />
+
+				        <a4j:commandButton render="tblProductos pngProductos popInformacion" value="Guardar" 
+				                		   action="#{gvProductoBean.guardar}" execute=""
+										   oncomplete="#{rich:component('popInformacion')}.show();return false;"/>
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popProductos" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacion" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvProductoBean.mensaje}"/>
+			    </h:panelGrid>
+			       					   <!-- oncomplete="#{rich:component('popInformacion')}.hide();#{rich:component('popProductos')}.hide();return false;"> -->
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacion')}.hide()">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+        
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

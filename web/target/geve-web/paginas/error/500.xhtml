@@ -1,0 +1,23 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:rich="http://richfaces.org/rich"
+	template="/plantillas/contenedor.xhtml">
+	<ui:define name="titulo">
+       Permiso denegado
+   </ui:define>
+	<ui:define name="contenido">
+		<div class="ui-messages-error ui-corner-all">
+			<span class="ui-messages-error-icon"></span> <span
+				class="ui-messages-error-summary">Ha existido un error
+				inesperado, favor comunicarse con el administrador del sistema.</span>
+		</div>
+		<br />
+		<a4j:commandButton value="Volver" onclick="history.back();" />
+		<a4j:commandButton value="Salir"
+			onclick="document.location = '#{request.contextPath}/logout'" />
+		<br />
+	</ui:define>
+</ui:composition>

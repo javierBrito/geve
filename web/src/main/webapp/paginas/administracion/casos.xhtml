@@ -1,0 +1,183 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core" 
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:p="http://primefaces.org/ui"
+    template="/plantillas/contenedor.xhtml">
+    
+    <ui:define name="titulo">
+        Administraci&#243;n de Parametros
+	</ui:define>
+    
+    <ui:define name="contenido">
+        <style>			
+			*.rf-trn-sel {
+				background: #FFFFE0;
+			}
+			.width30{
+				width:20%;
+				text-align: right;
+			}
+			.width70{
+				width:70%;
+			}
+		</style>
+		
+        <h:form id="principal">
+            <rich:panel>
+            	<f:facet name="header">Opciones</f:facet>		        		        		       
+		        <br/>
+		    	<a4j:commandButton render="panelNuevo" value="Nuevo Parametro" 
+		    					   action="#{casosBean.nuevoParametro()}"  
+		    					   oncomplete="#{rich:component('popupNuevoParametro')}.show()" />   
+		        <br/><br/>		        		          		       
+		        <fieldset style="width: 95%; text-align: left;">
+					<legend class="item-label" align="left" style="font-size: 11px;">
+						<b> B&#250;squeda de Casos</b>
+					</legend>
+				
+					<h:panelGrid columns="2" columnClasses="width30, width70" width="70%">
+			        	<h:panelGroup>
+			        		<b><h:outputText value="Buscar por:" /></b>
+			        	</h:panelGroup>
+			        	<h:selectOneRadio value="#{casosBean.opcionBusqueda}">
+				        	<f:selectItem itemLabel="Identificaci&#243;n" itemValue="1"/>
+				        	<f:selectItem itemLabel="Apellidos y nombres" itemValue="2"/>	
+				        	<a4j:ajax execute="@this" render="@this idLabel idCampo labelApell apellido labelNombre nombre parametros" 
+				        		listener="#{casosBean.limpiarVariablesBusqueda()}">
+				        	</a4j:ajax>		  
+			        	</h:selectOneRadio>
+			        	
+			        	
+			        	<h:panelGroup id="idLabel">
+			        		<b> <h:outputText value="Identificaci&#243;n:" rendered="#{casosBean.opcionBusqueda==1}"/></b>
+			        	</h:panelGroup>
+			        	<h:panelGroup id="idCampo">		        	
+			        		<h:inputText id="identificacion" value="#{casosBean.identificacionBuscar}" 
+			        			onkeyup="mayusculas(this);" style="width:30%" rendered="#{casosBean.opcionBusqueda==1}" maxlength="10" >
+			        			<a4j:ajax execute="@this" render="@this identificacion" ></a4j:ajax>
+			        		</h:inputText>
+			        		<a4j:commandButton value="Buscar" render="parametros" rendered="#{casosBean.opcionBusqueda==1}"
+			        			action="#{casosBean.buscarPorId}" >
+			        		</a4j:commandButton>		        	
+			        	</h:panelGroup>
+			        		
+			        	<h:panelGroup id="labelApell">
+			        		<b><h:outputText value="Apellidos:" rendered="#{casosBean.opcionBusqueda==2}"/></b>
+			        	</h:panelGroup>
+			        	<h:panelGroup id="apellido">
+			        		<h:inputText value="#{casosBean.apellidoBuscar}" 
+			        			onkeyup="mayusculas(this);" style="width:70%" rendered="#{casosBean.opcionBusqueda==2}">
+			        			<a4j:ajax execute="@this" render="@this apellido" ></a4j:ajax>
+			        		</h:inputText>
+			        	</h:panelGroup>		        	
+			        	<h:panelGroup id="labelNombre">
+			        		<b><h:outputText value="Nombres:" rendered="#{casosBean.opcionBusqueda==2}"/></b>
+			        	</h:panelGroup>
+			        	<h:panelGroup id="nombre">
+			        		<h:inputText value="#{casosBean.nombreBuscar}" 
+			        			onkeyup="mayusculas(this);" style="width:70%" rendered="#{casosBean.opcionBusqueda==2}" >
+			        			<a4j:ajax execute="@this" render="@this nombre" ></a4j:ajax>
+			        		</h:inputText>
+			        		<a4j:commandButton value="Buscar" render="parametros" rendered="#{casosBean.opcionBusqueda==2}"
+			        			action="#{casosBean.buscar}" >
+			        		</a4j:commandButton>
+			        	</h:panelGroup>		        	
+			        			        	       	       
+			        </h:panelGrid>																        		      
+	      			<br/>
+      			</fieldset>
+				<br/><br/>
+            </rich:panel>
+            <br/>
+            <rich:dataTable id="parametros" var="parametro" value="#{casosBean.parametros}" 
+            	noDataLabel="No se han encontrado registros" rows="30" iterationStatusVar="it" 
+            	onrowmouseover="this.style.backgroundColor='#FFFFE0'"
+				onrowmouseout="this.style.backgroundColor='#F7FDFC'"
+				style="align:center; width:100%; background-color:#F7FDFC">
+				<rich:column style="width:3%">
+                	<f:facet name="header">#</f:facet>
+                	#{it.index+1}
+            	</rich:column>
+	            <rich:column style="width:20%">
+	                <f:facet name="header">Descripción</f:facet>
+	                #{parametro.descripcion}
+	            </rich:column>
+	            <rich:column style="width:20%">
+	                <f:facet name="header">Valor</f:facet>
+	                #{parametro.valor}
+	            </rich:column>
+	            <rich:column>
+	                <f:facet name="header">Estado</f:facet>
+	                <h:outputText value="#{usuario.estado == 'A' ? 'Activo' : 'Inactivo'}" /> 
+	            </rich:column>
+	            <rich:column style="width:10%">
+	            	<a4j:commandLink rendered="#{usuario.estado == 'I'}" render="parametros" 
+	            		action="#{casosBean.activar}" onclick="return confirm('Está seguro que desea activar el usuario seleccionado?')">
+						<h:graphicImage value="/img/tick.gif" alt="Activar" title="Activar Parametro"/>
+						<f:setPropertyActionListener target="#{casosBean.gvParametro}" value="#{parametro}"/>
+					</a4j:commandLink>
+					<a4j:commandLink rendered="#{usuario.estado == 'A'}" render="parametros" 
+						action="#{casosBean.eliminar}" onclick="return confirm('Está seguro que desea desactivar el usuario seleccionado?')">
+						<h:graphicImage value="/img/delete.gif" alt="Eliminar"  title="Desctivar Parametro"/>
+						<f:setPropertyActionListener target="#{casosBean.gvParametro}" value="#{parametro}"/>
+					</a4j:commandLink>
+					<a4j:commandLink render="panelEditar" 
+						action="#{casosBean.editarParametro}"
+						oncomplete="#{rich:component('popupEditarParametro')}.show()" >
+						<h:graphicImage value="/img/edit.gif" alt="Editar"  title="Editar Parametro"/>
+						<f:setPropertyActionListener target="#{casosBean.gvParametro}" value="#{parametro}"/>
+					</a4j:commandLink>
+					<a4j:commandLink render="panelRoles" action="#{casosBean.inicializarRoles}" 
+						oncomplete="#{rich:component('popupRolesParametro')}.show()" 
+						actionListener="#{casosBean.listarAplicaciones()}">
+						<h:graphicImage value="/img/roles.png" alt="Roles" title="Asignar Roles"/>
+						<f:setPropertyActionListener target="#{casosBean.gvParametro}" value="#{parametro}"/>
+					</a4j:commandLink>
+					<a4j:commandLink render="panelSedes" 
+						oncomplete="#{rich:component('popupSedesParametro')}.show()" 
+						actionListener="#{casosBean.listarSedes()}">
+						<h:graphicImage value="/img/home.png" alt="Sedes" title="Asignar Sede"/>
+						<f:setPropertyActionListener target="#{casosBean.gvParametro}" value="#{parametro}"/>
+					</a4j:commandLink>
+				</rich:column>
+				
+					<f:facet name="footer">
+                	<rich:dataScroller align="left" for="parametros" maxPages="10"  />
+            	</f:facet>
+	        </rich:dataTable>
+		</h:form>
+
+        <rich:popupPanel id="popupNuevoParametro" modal="true" ronmaskclick="#{rich:component('popupNuevoParametro')}.hide()" autosized="true">
+        	<f:facet name="header">Nuevo Parametro</f:facet>
+	       	<h:form id="frm1">
+        		<rich:messages globalOnly="true" ajaxRendered="true" showDetail="true" showSummary="true"></rich:messages>
+        		<a4j:outputPanel id="panelNuevo">
+		           	<h:panelGrid columns="3">
+		                
+		                <h:outputLabel for="descripcion" value="Descripción: " />
+		                <h:inputText id="descripcion" value="#{casosBean.gvParametro.descripcion}" 
+		                	onkeyup="mayusculas(this);" maxlength="25" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="descripcion"/>
+		
+		                <h:outputLabel for="valor" value="Valor:" />
+		                <h:inputText id="valor" value="#{casosBean.gvParametro.valor}" 
+		                	onkeyup="mayusculas(this);" maxlength="255" required="true" requiredMessage="Campo obligatorio"/>
+		                <rich:message for="valor"/>
+		            </h:panelGrid>
+		            
+		           	<h:panelGrid columns="2">
+		            	<a4j:commandButton action="#{casosBean.crearParametro()}" 
+		            		value="Crear" render="tablaAplicaciones" 
+		            		oncomplete="if('#{facesContext.maximumSeverity}'.indexOf('ERROR') &lt; 0) #{rich:component('popupNuevoParametro')}.hide()"/>
+		            	<a4j:commandButton value="Cancelar" 
+		            		oncomplete="#{rich:component('popupNuevoParametro')}.hide()" immediate="true"/>
+		        	</h:panelGrid>
+		        </a4j:outputPanel>
+	        </h:form>
+    	</rich:popupPanel>
+
+	</ui:define>
+</ui:composition>

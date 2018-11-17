@@ -1,0 +1,405 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			xmlns:p="http://primefaces.org/ui"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">Punto de Venta</ui:define>
+    <ui:define name="contenido">
+		<script type="text/javascript">
+            function NumCheck(e, field) {
+            	//alert("NumCheck");
+                key = e.keyCode ? e.keyCode : e.which
+                if (key == 9) return true;
+                if (key == 8) return true;
+                if (key > 47 &amp;&amp; key &lt; 58) {
+                    if (field.value == "") return true
+                    regexp = /[0-9]{4}(\.\d{2,2}){0,1}$/
+                    return !(regexp.test(field.value))
+                }
+                if (key == 46) {
+                    if (field.value == "") return false
+                    regexp = /^[0-9]+$/
+                    return regexp.test(field.value)
+                }
+                return false
+            }
+            
+            function restar(item) {
+            	//alert("restar(item)");
+            	//v1 = identificador de la forma que contiene los atributos a procesar. (jbrito-20150908)
+                var v1 = item.id.substring(0 , item.id.length - 14); //El valor 14 = # caracteres del nombre atributo ej: mntPrecio
+                var n1 = parseFloat(document.getElementById(v1 + "itMntEntregado").value);
+                var n2 = parseFloat(document.getElementById(v1 + "itMntTotal").value);
+
+                if(n1 + "" == "NaN") n1 = 0;
+                if(n2 + "" == "NaN") n2 = 0;
+                
+				var total = (n1 - n2);
+            	//alert(total);
+                var s = document.getElementById(v1 + "itMntCambio");
+                s.value = total.toString().substr(0, 4); 
+            }
+        </script>
+        
+		<fieldset>
+        <h:form id="frm0">
+        	<h:panelGroup id="pgStockMinimos" rendered="#{puntoVentaBean.visibleStockMinimos}">
+			<fieldset>
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Stock Mínimos:</b>
+				</legend>			
+				<h:panelGroup>
+   					<h:outputLabel value="Fecha Proceso: "/>
+                	<h:inputText readonly="true" style="width: 10%; text-align: left; font-size: 12px; font-weight: bold"   
+	            				 value="#{puntoVentaBean.fechaRegistraString}" >
+					</h:inputText>
+					<br />
+					<br />
+                   	<h:panelGroup id="tblStockMinimos" >
+                       	<rich:dataTable value="#{puntoVentaBean.listaGvKardexStockMinimosAux}" var="registro" 
+                           	            rows="10" styleClass="table" iterationStatusVar="it"
+                               	        noDataLabel="No existen registros..."> 
+                           	<rich:column style="text-align: center">
+                               	<f:facet name="header">Nro.</f:facet>
+                               	#{it.index +1}
+                           	</rich:column>
+                           	<rich:column style="text-align: center">
+                               	<f:facet name="header">Producto</f:facet>
+                               	#{registro.idProducto}
+                           	</rich:column>
+                           	<rich:column>
+                               	<f:facet name="header">Descripción</f:facet>
+                               	#{registro.descripcion}
+                           	</rich:column>
+                           	<rich:column style="text-align: center">
+                               	<f:facet name="header">Código</f:facet>
+                               	#{registro.codigo}
+                           	</rich:column>
+                           	<rich:column style="text-align: center">
+                               	<f:facet name="header">Stock a la Fecha</f:facet>
+                               	#{registro.numExistencia}
+                           	</rich:column>
+                           	<rich:column style="text-align: center; font-weight: bold; color: blue;">
+                               	<f:facet name="header">Stock Mínimo</f:facet>
+                               	#{registro.numExistenciaMinima}
+                           	</rich:column>
+                           	<rich:column style="text-align: center">
+                           		<f:facet name="header">Opciones</f:facet>
+                           		<a4j:commandLink render="tblKardexs olMensaje" rendered="#{!registro.registroVerificado}" 
+                           						 disabled="#{registro.numExistencia eq 0 or 
+                           						 			 registro.numExistencia eq 0}"
+                           						 action="#{puntoVentaBean.verificar(registro, it.index)}">
+                               		<h:graphicImage value="/img/proceso2.png" alt="verificar registro" title="verificar registro"/>
+                               	</a4j:commandLink>
+                            	<a4j:commandLink render="tblKardexs olMensaje" rendered="#{registro.registroVerificado}"
+                            					 action="#{puntoVentaBean.verificar(registro, it.index)}">
+                            		<h:graphicImage value="/img/check.jpeg" alt="registro verificado" title="registro verificado"/>
+                            	</a4j:commandLink>
+                            </rich:column>
+                            <f:facet name="footer"><rich:dataScroller/></f:facet>
+                   		</rich:dataTable>
+                 	</h:panelGroup>                            
+				</h:panelGroup>
+				</fieldset>
+			</h:panelGroup>
+			
+        	<h:panelGrid columns="2">
+				<h:panelGroup>
+					<fieldset style="width: 50%; text-align: left;">
+						<legend class="item-label" align="left" style="font-size: 12px;">
+							<b>Productos:</b>
+						</legend>
+						<div style="width: 100%" align="center">
+							<h:form id="frm1">
+								<h:outputText value="Precio por Mayor: " />
+								<h:inputText value="#{puntoVentaBean.gvProducto.codigo}" style="width: 25%; text-align: right"/>
+								
+								<p:dataGrid id="dgProductos" layout="grid" var="producto"
+											value="#{puntoVentaBean.listaGvProductoPuntoVenta}"
+											columns="4" rows="6" rowsPerPageTemplate="6,12,18"
+											paginator="true"
+											paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}">
+									<f:facet name="header">Productos en Existencia</f:facet>
+									<p:panel style="text-align:center">
+										<h:panelGrid columns="1" style="width:100%">
+											<p:graphicImage value="/resources/#{producto.nombreImagen}" />
+											<h:outputText value="#{producto.nombreImagen}" />
+											<h:outputText value="Stock: #{producto.numExistenciaActual}" />
+											<p:commandLink update="fProductoDetalle frm0"
+														   title="Producto Detalle"
+														   action="#{puntoVentaBean.resetearCantidades()}"
+														   oncomplete="PF('dProductoDetalle').show()">
+												<h:outputText styleClass="ui-icon ui-icon-search" style="margin:0 auto;" />
+												<f:setPropertyActionListener value="#{producto}"
+																			 target="#{puntoVentaBean.gvProductoSeleccionado}" />
+											</p:commandLink>
+										</h:panelGrid>
+									</p:panel>
+								</p:dataGrid>
+							</h:form>
+						</div>
+					</fieldset>
+					<br />
+				</h:panelGroup>
+
+				<h:panelGroup id="pgDocumento" >
+					<a4j:commandLink render="frm2 frm3 pgDocumentos pgProductos"
+									 action="#{puntoVentaBean.nuevo()}" >
+						<h:graphicImage value="/img/nuevo-documento-icono-9161-96.png" alt="Nuevo"
+										title="Resetear Datos Documento" />
+					</a4j:commandLink>
+            		<fieldset style="width: 50%; text-align: left;">
+        				<legend class="item-label" align="left" style="font-size: 12px;">
+        					<b>Generar Documento:</b>
+						</legend>            
+                		<div style="width: 100%">
+							<h:form id="frm2">
+			    				<h:outputLabel id="olMensajeDocumento" value="#{puntoVentaBean.mensajeDocumento}" style="color:blue"/>
+		            			<h:panelGrid columns="3" >
+		                			<h:outputLabel for="cmbCliente1" value="Cliente: " />
+									<rich:select id="cmbCliente1" 
+												 required="true" requiredMessage="Campo obligatorio" 
+				        			 			 value="#{puntoVentaBean.gvCliente.idCliente}"
+				        			 			 defaultLabel=" seleccione el cliente ">
+					    				<f:selectItems value="#{puntoVentaBean.listaGvCliente}" 
+					       				   			   var="item" itemValue="#{item.idCliente}" 
+					       				               			  itemLabel="#{item.nombres}">
+					       				</f:selectItems>
+					    			</rich:select>		                
+		                			<rich:message for="cmbCliente1"/>
+						
+		                			<h:outputLabel for="cmbTipoDocumento1" value="Tipo Documento: " />
+									<rich:select id="cmbTipoDocumento1" 
+				        			 			 value="#{puntoVentaBean.gvTipoDocumento.idTipoDocumento}"
+				        			 			 defaultLabel=" seleccione el tipo de documento ">
+					    				<f:selectItems value="#{puntoVentaBean.listaGvTipoDocumento}" 
+					       							   var="item" itemValue="#{item.idTipoDocumento}" 
+					       				            			  itemLabel="#{item.descripcion}">
+					       				              
+					       				</f:selectItems>
+					    			</rich:select>		                
+		                			<rich:message for="cmbTipoDocumento1"/>
+
+		                			<h:outputLabel value="Items: " />
+		                			<h:inputText readonly="true" style="font-size: 14px; width: 25%; text-align: right; font-weight: bold"   
+		                						 value="#{puntoVentaBean.gvDocumento.numItems}" />
+		                			<h:outputLabel value="" />
+
+					                <h:outputLabel value="Subtotal: " />
+		    			            <h:inputText readonly="true" style="font-size: 14px; width: 25%; text-align: right; font-weight: bold"   
+		                						 value="#{puntoVentaBean.gvDocumento.mntSubtotal}" >
+									</h:inputText>
+		                			<h:outputLabel value="" />
+
+					                <h:outputLabel value="IVA: " />
+		    			            <h:inputText readonly="true" style="font-size: 14px; width: 25%; text-align: right; font-weight: bold" 
+		                						 value="#{puntoVentaBean.gvDocumento.mntIva}">
+									</h:inputText>
+		                			<h:outputLabel value="" />
+
+					                <h:outputLabel value="Total a Pagar: " />
+					                <h:panelGrid columns="3">
+		    			            	<h:inputText id="itMntTotal" readonly="true" style="font-size: 14px; width: 75%; text-align: right; font-weight: bold"  
+		                							 value="#{puntoVentaBean.gvDocumento.mntTotal}" />
+		    			            	<h:inputText id="itMntEntregado" style="font-size: 14px; width: 75%; text-align: right; font-weight: bold"  
+		                							 value="#{puntoVentaBean.mntEntregado}" 
+				            		 				 onkeyup="restar(this)"
+			            			 				 onkeypress="return NumCheck(event, this)" />
+		    			            	<h:inputText id="itMntCambio" readonly="true" style="font-size: 14px; width: 75%; text-align: right; font-weight: bold"  
+		                							 value="#{puntoVentaBean.mntCambio}" />
+									</h:panelGrid>
+		                			<h:outputLabel value="" />
+
+					                <h:outputLabel value="Observaciones: " />
+		    			            <h:inputTextarea style="width: 100%"  
+		                						 	 value="#{puntoVentaBean.gvDocumento.observaciones}" 
+		                						 	 onkeyup="mayusculas(this)"/>
+		                			<h:outputLabel value="" />
+			        			</h:panelGrid>
+
+								<h:panelGrid>
+									<h:panelGroup id="pgProductos">
+										<rich:dataTable	value="#{puntoVentaBean.listaGvDocumentoDetalle}"
+														var="registro1" rows="10" styleClass="table"
+														iterationStatusVar="it" noDataLabel="No existen Productos..." >
+											<rich:column style="text-align: center">
+												<f:facet name="header">No.</f:facet>#{it.index +1}
+                                			</rich:column>
+											<rich:column style="text-align: center">
+												<f:facet name="header">Producto</f:facet>
+												<h:graphicImage value="/resources/#{registro1.gvProducto.nombreImagen}" />
+											</rich:column>
+											<rich:column style="text-align: center">
+												<f:facet name="header">Stock</f:facet>
+                                    			#{registro1.gvProducto.numExistenciaActual}
+                               				</rich:column>
+											<rich:column style="text-align: center">
+												<f:facet name="header">Cantidad</f:facet>
+												<h:inputText style="text-align:center" size="2" readonly="true" 
+															 required="true" requiredMessage="Campo obligatorio" 
+												 			value="#{registro1.numCantidad}"  
+												 			onkeypress="return NumCheck(event, this)" >
+			            						</h:inputText>
+											</rich:column>
+											<rich:column style="text-align: center">
+												<f:facet name="header">Precio</f:facet>
+                                    			#{registro1.precio}
+                               				</rich:column>
+											<rich:column style="text-align: center">
+												<f:facet name="header">Importe</f:facet>
+                                    			#{registro1.mntImporte}
+                               				</rich:column>
+											<rich:column style="text-align: center">
+												<f:facet name="header">Descuento</f:facet>
+                                    			#{registro1.mntDescuento}
+                                			</rich:column>
+											<rich:column style="text-align: center">
+												<f:facet name="header">Opciones</f:facet>
+												<a4j:commandLink render="frm2" rendered="#{!(registro1.gvProducto.idProducto eq 0)}"
+																 action="#{puntoVentaBean.eliminarProducto(registro1, it.index)}" >
+													<h:graphicImage value="/img/delete.gif" alt="Eliminar Producto"
+																	title="Eliminar Producto" />
+												</a4j:commandLink>
+											</rich:column>
+											<f:facet name="footer">
+												<rich:dataScroller />
+											</f:facet>
+										</rich:dataTable>
+									</h:panelGroup>
+								</h:panelGrid>
+
+	                			<h:outputLabel id="olMensaje" value="#{puntoVentaBean.mensaje}" style="color: blue;" />
+
+								<h:panelGrid columns="2">
+							        <a4j:commandButton render="dgProductos frm2 frm3 pgDocumentos olMensaje" 
+				        							   value="Guardar Documento" 
+				                					   action="#{puntoVentaBean.actualizarDocumento}" execute="@this" />
+			        			</h:panelGrid>
+			    			</h:form>
+						</div>
+					</fieldset><br/>
+				</h:panelGroup>
+			</h:panelGrid>
+
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Documentos Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+					<h:form id="frm3">
+                    <rich:panel>
+                        <div class="table-responsive">
+                        	<h:panelGroup id="pgDocumentos" >
+                            	<rich:dataTable value="#{puntoVentaBean.listaGvDocumento}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen Documentos..."> 
+                                	<rich:column>
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Cliente</f:facet>
+                                    	#{registro.gvCliente.nombres}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Tipo</f:facet>
+                                    	#{registro.gvTipoDocumento.descripcion}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Estado</f:facet>
+                                    	#{registro.gvEstadoDocumento.descripcion}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Items</f:facet>
+                                    	#{registro.numItems}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Subtotal</f:facet>
+                                    	#{registro.mntSubtotal}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">I V A</f:facet>
+                                    	#{registro.mntIva}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">T o t a l</f:facet>
+                                    	#{registro.mntTotal}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm2 frm3"
+                                						 action="#{puntoVentaBean.editar(registro)}" >
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos Documento"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                    </h:form>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+		</fieldset>
+
+		<p:dialog header="Producto Detalle" widgetVar="dProductoDetalle"
+				  modal="false" showEffect="fade" hideEffect="fade" resizable="false">
+			<h:form id="fProductoDetalle">
+			<p:outputPanel style="text-align:left;">
+				<p:panelGrid columns="4" rendered="#{not empty puntoVentaBean.gvProductoSeleccionado}">
+					<f:facet name="header">
+						<div align="center">
+						<p:panelGrid columns="4">
+							<p:graphicImage value="/resources/#{puntoVentaBean.gvProductoSeleccionado.nombreImagen}" />
+							<h:outputText value="#{puntoVentaBean.gvProductoSeleccionado.descripcion}" />
+							<h:outputText value="Stock: #{puntoVentaBean.gvProductoSeleccionado.numExistenciaActual}" />
+							<h:outputText value="Mínimo: #{puntoVentaBean.gvProductoSeleccionado.numExistenciaMinima}" />
+						</p:panelGrid>
+						</div>
+					</f:facet>
+
+					<h:outputText value="Precio de Costo: " />
+					<h:outputText value="#{puntoVentaBean.gvProductoSeleccionado.precioDeCosto}" />
+					<h:inputText value="#{puntoVentaBean.cantidadPrecioDeCosto}" style="width: 25%; text-align: right"/>
+					<a4j:commandLink render="frm2 pgProductos"
+									 action="#{puntoVentaBean.ingresarCantidadPrecio()}"
+									 oncomplete="PF('dProductoDetalle').hide()" >
+						<h:graphicImage value="/img/new.png" alt="Procesar"
+										title="Ingresar Producto" />
+					</a4j:commandLink>
+
+					<h:outputText value="Precio por Mayor: " />
+					<h:outputText value="#{puntoVentaBean.gvProductoSeleccionado.precioPorMayor}" />
+					<h:inputText value="#{puntoVentaBean.cantidadPrecioPorMayor}" style="width: 25%; text-align: right"/>
+					<a4j:commandLink render="frm2"
+									 action="#{puntoVentaBean.ingresarCantidadPrecio()}"
+									 oncomplete="PF('dProductoDetalle').hide()" >
+						<h:graphicImage value="/img/new.png" alt="Procesar"
+										title="Ingresar Producto" />
+					</a4j:commandLink>
+					
+					<h:outputText value="Precio por Menor: " />
+					<h:outputText value="#{puntoVentaBean.gvProductoSeleccionado.precioPorMenor}" />
+					<h:inputText value="#{puntoVentaBean.cantidadPrecioPorMenor}" style="width: 25%; text-align: right"/>
+					<a4j:commandLink render="frm2"
+									 action="#{puntoVentaBean.ingresarCantidadPrecio()}"
+									 oncomplete="PF('dProductoDetalle').hide()" >
+						<h:graphicImage value="/img/new.png" alt="Procesar"
+										title="Ingresar Producto" />
+					</a4j:commandLink>
+				</p:panelGrid>
+			</p:outputPanel>
+			</h:form>
+		</p:dialog>
+
+		<a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,324 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">#{gvKardexBean.nombreEmpresa} - Administraci&#243;n de Informaci&#243;n de Kardex</ui:define>
+    <ui:define name="contenido">
+		<script type="text/javascript">
+            function NumCheck(e, field) {
+            	//alert("NumCheck");
+                key = e.keyCode ? e.keyCode : e.which
+                if (key == 9) return true;
+                if (key == 8) return true;
+                if (key > 47 &amp;&amp; key &lt; 58) {
+                    if (field.value == "") return true
+                    regexp = /[0-9]{4}(\.\d{2,2}){0,1}$/
+                    return !(regexp.test(field.value))
+                }
+                if (key == 46) {
+                    if (field.value == "") return false
+                    regexp = /^[0-9]+$/
+                    return regexp.test(field.value)
+                }
+                return false
+            }
+
+            document.oncontextmenu = function() {
+                return false
+            };
+            
+            function multiplicar(item) {
+            	//alert("multiplicar(item)");
+            	//v1 = identificador de la forma que contiene los atributos a procesar. (jbrito-20150908)
+                var v1 = item.id.substring(0 , item.id.length - 10); //El valor 10 = # caracteres del nombre atributo ej: mntPrecio
+                var n1 = parseFloat(document.getElementById(v1 + "numCantidad").value);
+                var n2 = parseFloat(document.getElementById(v1 + "mntPrecio").value);
+
+                if(n1 + "" == "NaN") n1 = 1;
+                if(n2 + "" == "NaN") n2 = 1;
+                if(n1 == "0") n1 = 1;
+                
+				var total = (n1 * n2 * n3);
+                var s = document.getElementById(v1 + "mntValor");
+                s.value = total.toString().substr(0, 4); 
+            }
+            
+            function multiplicarExistenciaActual(item) {
+            	//alert("multiplicar(item)");
+            	//v1 = identificador de la forma que contiene los atributos a procesar. (jbrito-20150908)
+                var v1 = item.id.substring(0 , item.id.length - 19); //El valor 9 = # caracteres del nombre atributo ej: mntPrecio
+                var n1 = parseFloat(document.getElementById(v1 + "numExistenciaActual").value);
+                var n2 = parseFloat(document.getElementById(v1 + "mntPrecio").value);
+
+                if(n1 + "" == "NaN") n1 = 1;
+                if(n2 + "" == "NaN") n2 = 1;
+                if(n1 == "0") n1 = 1;
+                if(n2 == "0") n2 = 1;
+                
+				var total = (n1 * n2);
+                var s = document.getElementById(v1 + "mntExistenciaActual");
+                s.value = total.toString().substr(0, 4); 
+            }
+    	</script>
+
+        <h:form id="formBusqueda">
+            <fieldset style="width: 96%; text-align: left;">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar Kardex:</b>
+				</legend>            
+
+                <div style="width: 100%" align="center">
+					<rich:panel>
+						<fieldset>
+						<h:panelGrid columns="3">
+
+								<h:outputLabel value="Producto: " />
+								<rich:select width="20"
+											 value="#{gvKardexBean.idProductoBuscar}"
+											 defaultLabel=" seleccione el cliente ">
+									<f:selectItems value="#{gvKardexBean.listaGvProducto}"
+												   var="item" itemValue="#{item.idProducto}"
+												   			  itemLabel="#{item.descripcion}">
+									</f:selectItems>
+								</rich:select>
+		                		<h:outputLabel value="" />
+						
+		                		<h:outputLabel value="Tipo Movimiento: " />
+								<rich:select width="20" 
+				        					 value="#{gvKardexBean.idTipoMovimientoBuscar}"
+				        			 		 defaultLabel=" seleccione el tipo de documento ">
+					    			<f:selectItems value="#{gvKardexBean.listaGvTipoMovimiento}" 
+					       						   var="item" itemValue="#{item.idTipoMovimiento}" 
+					       				    		          itemLabel="#{item.descripcion}">
+					       			</f:selectItems>
+					    		</rich:select>		                
+		                		<h:outputLabel value="" />
+
+		                		<h:outputLabel value="Documento: " />
+								<rich:select width="20" 
+				        					 value="#{gvKardexBean.idDocumentoBuscar}"
+				        			 		 defaultLabel=" seleccione el estado del documento ">
+					    			<f:selectItems value="#{gvKardexBean.listaGvDocumento}" 
+					       						   var="item" itemValue="#{item.idDocumento}" 
+					       				    		          itemLabel="#{item.idDocumento}">
+					       			</f:selectItems>
+					    		</rich:select>		                
+		                		<h:outputLabel value="" />
+						
+								<a4j:commandButton value="Buscar Registros" 
+												   render="tblKardexs btnExcel olMensaje"
+												   action="#{gvKardexBean.buscarListaPorParametros}" />
+						</h:panelGrid>
+						</fieldset>
+						<a4j:commandLink id="btnNuevo"
+										 render="frm2 tblKardexs pngKardexs popKardexs olMensaje"
+										 action="#{gvKardexBean.nuevo()}"
+										 oncomplete="#{rich:component('popKardexs')}.show();return false;">
+							<h:graphicImage value="/img/nuevo_registro.jpg" alt="Nuevo"
+											title="Ingresar Datos Nuevo Kardex" />
+						</a4j:commandLink>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+						<a4j:commandLink id="btnExcel" render="olMensaje"
+										 disabled="#{empty gvKardexBean.listaGvKardex}"
+										 action="#{gvKardexBean.exportarExcel()}">
+							<h:graphicImage value="/img/excel.png" alt="Excel"
+											title="Exportar a Excel" />
+						</a4j:commandLink>
+						<div>
+			    			<h:outputLabel id="olMensaje" value="#{gvKardexBean.mensaje}" style="color:blue"/>
+			    		</div>
+                    <rich:panel>
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblKardexs" >
+                            	<rich:dataTable value="#{gvKardexBean.listaGvKardex}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."> 
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Producto</f:facet>
+                                    	#{registro.gvProducto.descripcion}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">TipoMovimiento</f:facet>
+                                    	#{registro.gvTipoMovimiento.descripcion} - #{registro.fechaRegistra.toString()}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Documento</f:facet>
+                                    	#{registro.gvDocumento.idDocumento}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Cantidad</f:facet>
+                                    	#{registro.numCantidad}
+                                	</rich:column>
+                                	<rich:column style="text-align: right">
+                                    	<f:facet name="header">Precio</f:facet>
+                                    	#{registro.mntPrecio}
+                                	</rich:column>
+                                	<rich:column style="text-align: right">
+                                    	<f:facet name="header">Monto I/E</f:facet>
+                                    	#{registro.mntValor}
+                                	</rich:column>
+                                	<rich:column style="text-align: right">
+                                    	<f:facet name="header">Existencia Actual</f:facet>
+                                    	#{registro.numExistenciaActual}
+                                	</rich:column>
+                                	<!-- <rich:column style="text-align: right">
+                                    	<f:facet name="header">Monto Actual</f:facet>
+                                    	#{registro.mntExistenciaActual}
+                                	</rich:column> -->
+                                	<rich:column style="text-align: center">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm2 olMensaje" 
+                                						 action="#{gvKardexBean.editar(registro)}" 
+                                						 oncomplete="#{rich:component('popKardexs')}.show();return false;">
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos Kardex"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+
+      	<rich:popupPanel id="popKardexs" autosized="true" moveable="true">
+			<f:facet name="header">Informaci&#243;n Kardex</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popKardexs')}.hide(); return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset  id="fieldset1" style="text-align: left;">
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Kardex</b>
+				</legend>
+				<h:form id="frm2">
+			    	<h:outputLabel id="olMensaje" value="#{gvKardexBean.mensaje}" style="color:blue"/>
+		            <h:panelGrid id="pngKardexs" columns="3" rendered="true">
+						
+		                <h:outputLabel for="cmbProducto" value="Producto: " />
+						<rich:select id="cmbProducto" required="true" requiredMessage="Campo obligatorio" width="20" 
+				        			 value="#{gvKardexBean.gvProducto.idProducto}"
+				        			 defaultLabel=" seleccione el producto ">
+					    	<f:selectItems value="#{gvKardexBean.listaGvProducto}" 
+					       				   var="item" itemValue="#{item.idProducto}" 
+					       				              itemLabel="#{item.descripcion}">
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbProducto"/>
+
+		                <h:outputLabel for="cmbTipoMovimiento" value="TipoMovimiento: " />
+						<rich:select id="cmbTipoMovimiento" required="true" requiredMessage="Campo obligatorio" width="20" 
+				        			 value="#{gvKardexBean.gvTipoMovimiento.idTipoMovimiento}"
+				        			 defaultLabel=" seleccione el tipo movimiento ">
+					    	<f:selectItems value="#{gvKardexBean.listaGvTipoMovimiento}" 
+					       				   var="item" itemValue="#{item.idTipoMovimiento}" 
+					       				              itemLabel="#{item.descripcion}">
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <rich:message for="cmbTipoMovimiento"/>
+						
+		                <h:outputLabel value="Documento: " />
+						<rich:select id="cmbDocumento" width="20" 
+				        			 value="#{gvKardexBean.gvDocumento.idDocumento}"
+				        			 defaultLabel=" seleccione el documento ">
+					    	<f:selectItems value="#{gvKardexBean.listaGvDocumento}" 
+					       				   var="item" itemValue="#{item.idDocumento}" 
+					       				              itemLabel="#{item.idDocumento}">
+					       	</f:selectItems>
+					    </rich:select>		                
+		                <h:outputLabel value="" />
+	
+		                <h:outputLabel for="numCantidad" value="Cantidad: " />
+  			            <h:inputText id="numCantidad" size="4" style="width: 25%; text-align: right" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvKardexBean.gvKardex.numCantidad}"
+				            		 onkeyup="multiplicar(this)"
+			            			 onkeypress="return NumCheck(event, this)" >
+			            	<f:validateLongRange minimum="0" maximum="9999" />
+			            </h:inputText>
+		                <rich:message for="numCantidad" />
+		
+		                <h:outputLabel for="mntPrecio" value="Precio: " />
+  			            <h:inputText id="mntPrecio" size="4" style="width: 25%; text-align: right" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvKardexBean.gvKardex.mntPrecio}"
+			            			 onkeyup="multiplicar(this)"
+			            			 onkeypress="return NumCheck(event, this)">
+			            	<f:validateLongRange minimum="0" maximum="9999"/>
+			            </h:inputText>
+		                <rich:message for="mntPrecio" />
+
+		                <h:outputLabel value="Monto I/E: " />
+		                <h:inputText id="mntValor" readonly="true" style="width: 25%; text-align: right"  
+		                			 value="#{gvKardexBean.gvKardex.mntValor}" >
+						</h:inputText>
+		                <h:outputLabel value="" />
+		
+		                <h:outputLabel for="numExistenciaActual" value="Existencia Actual: " />
+  			            <h:inputText id="numExistenciaActual" size="4" style="width: 25%; text-align: right" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvKardexBean.gvKardex.numExistenciaActual}"
+			            			 onkeyup="multiplicarExistenciaActual(this)"
+			            			 onkeypress="return NumCheck(event, this)">
+			            	<f:validateLongRange minimum="0" maximum="9999"/>
+			            </h:inputText>
+		                <rich:message for="numExistenciaActual" />
+
+		                <!-- <h:outputLabel value="Monto Actual: " />
+		                <h:inputText id="mntExistenciaActual" readonly="true" style="width: 25%; text-align: right"  
+		                			 value="#{gvKardexBean.gvKardex.mntExistenciaActual}" >
+						</h:inputText>
+		                <h:outputLabel value="" /> -->
+
+		                <h:outputLabel value="Observaciones: " />
+		                <h:inputTextarea style="width: 100%"  
+		                			 	 value="#{gvKardexBean.gvKardex.observaciones}" 
+		                			 	 onkeyup="mayusculas(this)"/>
+		                <h:outputLabel value="" />
+
+				        <a4j:commandButton render="tblKardexs pngKardexs olMensaje" value="Guardar" 
+				                		   action="#{gvKardexBean.guardar}" execute="" />
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popKardexs" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacion" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvKardexBean.mensaje}"/>
+			    </h:panelGrid>
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacion')}.hide();#{rich:component('popKardexs')}.hide();return false;">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

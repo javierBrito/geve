@@ -1,0 +1,117 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">Administraci&#243;n de Informaci&#243;n de Clase</ui:define>
+    <ui:define name="contenido">
+        <h:form id="formBusqueda">
+            <fieldset style="width: 96%; text-align: left;">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar Clases:</b>
+				</legend>            
+
+                <div style="width: 100%" align="center">
+                    <rich:panel>
+                        <h:panelGrid columns="2">
+                            <a4j:commandButton id="btnBuscar" render="tblClases pngClases popClases" value="Buscar" 
+                            				   action="#{gvClaseBean.buscar()}">  
+                    		</a4j:commandButton>
+                            <a4j:commandLink id="btnNuevo" render="frm2 tblClases pngClases popClases" 
+                            				 action="#{gvClaseBean.nuevo()}" 
+                            				 oncomplete="#{rich:component('popClases')}.show();return false;">
+                            	<h:graphicImage value="/img/nuevo_registro.jpg" alt="Nuevo" title="Ingresar Datos Clase"/>
+                            </a4j:commandLink>
+                        </h:panelGrid>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+                    <rich:panel>
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblClases">
+                            	<rich:dataTable value="#{gvClaseBean.listaClases}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."> 
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Descripción</f:facet>
+                                    	#{registro.descripcion}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm2" 
+                                						 action="#{gvClaseBean.editar(registro)}" 
+                                						 oncomplete="#{rich:component('popClases')}.show();return false;">
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos Clase"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+
+      	<rich:popupPanel id="popClases" autosized="true" moveable="true">
+			<f:facet name="header">Informaci&#243;n Clase</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popClases')}.hide();return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset  id="fieldset1" style="text-align: left;">
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Clase</b>
+				</legend>
+				<h:form id="frm2">
+		            <h:panelGrid id="pngClases" columns="2" rendered="true">
+	                    <h:outputLabel value = "Descripción: "/>
+	                    <h:inputText id="txtDescripcion" required="true" requiredMessage="Campo obligatorio"
+	                    			 onkeyup="mayusculas(this)" size="50" maxlength="50"  
+	                    			 value="#{gvClaseBean.gvClase.descripcion}" />
+				        <h:outputLabel value = ""/>
+			            <rich:message for="txtDescripcion" style="color: red;"></rich:message>
+								                	
+				        <a4j:commandButton render="tblClases pngClases popInformacion" value="Guardar" 
+				                		   action="#{gvClaseBean.guardar}" execute="frm2"
+										   oncomplete="if('#{facesContext.maximumSeverity}'.indexOf('ERROR') &lt; 0) #{rich:component('popInformacion')}.show();return false;"/>
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popClases" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+						
+		<rich:popupPanel id="popInformacion" width="350" height="100">
+			<f:facet name="header">Informaci&#243;n</f:facet>
+			<h:form>
+				<h:panelGrid columns="2">
+			    	<h:outputLabel value="#{gvClaseBean.mensaje}"/>
+			    </h:panelGrid>
+			       	<a4j:commandButton value="Aceptar" 
+			       					   oncomplete="#{rich:component('popInformacion')}.hide();#{rich:component('popClases')}.hide();return false;">
+			       	</a4j:commandButton>
+			</h:form>
+        </rich:popupPanel>
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

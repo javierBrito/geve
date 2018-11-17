@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:rich="http://richfaces.org/rich"
+                template="/plantillas/contenedor.xhtml">
+
+    <style type="text/css">
+        .centrar {
+            text-align : center
+        }
+        .col1 {
+            width:50px;
+        }
+        .col2 {
+            width:70px;
+        }
+        .col3 {
+            width:150px;
+        }
+        .col4 {
+            width:20px;
+        }
+        .col5 {
+            width:50px;
+        }
+        .col6 {
+            width:50px;
+        }
+        .col7 {
+            width:50px;
+        }
+        .col8 {
+            width:50px;
+        }
+        .col9 {
+            width:50px;
+        }
+        .col10 {
+            width:50px;
+        }
+        .col11 {
+            width:50px;
+        }
+        .col12 {
+            width:50px;
+        }
+        .col13 {
+            width:50px;
+        }
+        .col14 {
+            width:60px;
+        }
+        .col15 {
+            width:50px;
+        }
+        .col16 {
+            width:60px;
+        }
+        .col7 {
+            width:50px;
+        }
+    </style>
+    <ui:define name="titulo">Validaci&#243;n del Distrito</ui:define>
+    <ui:define name="contenido">
+        <script type="text/javascript"></script>
+        <rich:panel style="width: 950px">
+            <h:form >
+                <f:facet name="header">Criterios de Búsqueda</f:facet>
+                <h:panelGroup id="grupo-instituciones" style="width: 950px">
+                    <rich:panel>
+                        <f:facet name="header">Listado de Instituciones</f:facet>
+                        <h:panelGrid columns="2">
+                            <h:panelGroup id="intitucion-seleccion" style="width: 950px">
+                                <h:selectOneRadio value="#{validacionDistritoBean.tipoBusqueda}">
+                                    <f:selectItem itemLabel="AMIE" itemValue="AMIE"/>
+                                    <f:selectItem itemLabel="Nombre Instituci&#243;n" itemValue="NOMBRE"/>
+                                </h:selectOneRadio>
+                            </h:panelGroup>
+                        </h:panelGrid>
+                        <h:panelGrid columns="3">
+                            <h:panelGroup id ="ingreso-institucion" style="width: 950px">
+                                <h:outputLabel value="Criterio de busqueda:"/>
+                                <h:inputText id="AMIE-Institucion" value="#{validacionDistritoBean.txtBusqueda}"/>
+
+                            </h:panelGroup>
+                            <h:panelGroup id ="busqueda-institucion" style="width: 950px">
+                                <h:commandButton value="Buscar"  action="#{validacionDistritoBean.accionBuscar()}"/>
+                            </h:panelGroup>
+                        </h:panelGrid>
+                        <br/>
+                        <br/>
+                    </rich:panel>
+                </h:panelGroup>
+                <h:panelGroup id = "informacion-institucion" style="width: 950px">
+                    <rich:panel>
+                        <rich:extendedDataTable id="table-instituciones" var="institucion" rows="10" style="width:900px"
+                        						value="#{validacionDistritoBean.institucionDTOList}"
+                        						onrowmouseover="this.style.fontWeight='bold'"
+                                                onrowmouseout="this.style.fontWeight='normal'" 
+                                                selection="#{validacionDistritoBean.institucionesSeleccionadas}" >
+                            <f:facet name="header">Instituciones Encontradas</f:facet>
+                            <a4j:ajax event="selectionchange" 
+                            		  render="informacion-institucion-seleccionada combos-busqueda" 
+                            		  listener="#{validacionDistritoBean.eventoSeleccionTablaInstituciones}"/>
+                            <rich:column width="100px">
+                                <f:facet name="header">AMIE</f:facet>
+                                #{institucion.amie}
+                            </rich:column>
+                            <rich:column width="400px">
+                                <f:facet name="header">Instituci&#243;n Educativa</f:facet>
+                                #{institucion.descripcion}
+                            </rich:column>
+                            <rich:column width="150px">
+                                <f:facet name="header">Provincia</f:facet>
+                                #{institucion.provincia}
+                            </rich:column>
+                            <rich:column width="100px">
+                                <f:facet name="header">Cant&#243;n</f:facet>
+                                #{institucion.canton}
+                            </rich:column>
+                            <rich:column width="400px">
+                                <f:facet name="header">Parroquia</f:facet>
+                                #{institucion.parroquia}
+                            </rich:column>
+                        </rich:extendedDataTable>
+                        <rich:dataScroller for="table-instituciones"/>
+                    </rich:panel>
+                </h:panelGroup>
+                <br/>
+                <br/>
+                <h:panelGroup id="informacion-institucion-seleccionada" style="width: 950px">
+                    <rich:panel>
+                        <f:facet name="header">Instituci&#243;n Seleccionada</f:facet>
+                        <h:panelGrid columns="2">
+                            <h:outputLabel value = "AMIE Instituci&#243;n: "/>
+                            <h:outputText value = "#{validacionDistritoBean.institucionSeleccionada.amie}"/>
+                            <h:outputLabel value = "Nombre de la Instituci&#243;n: "/>
+                            <h:outputText value = "#{validacionDistritoBean.institucionSeleccionada.descripcion}"/>
+                        </h:panelGrid>
+                    </rich:panel>
+                </h:panelGroup>
+                <br/>
+                <br/>
+            </h:form>
+            <h:form >
+                <h:panelGroup id="combos-busqueda" style="width: 950px">
+                    <rich:panel>
+                        <f:facet name="header">Seleccione los siguientes criterios:</f:facet>
+                        <h:panelGrid columns="3">
+                            <h:panelGroup id="anio-lectivo">
+                                <h:outputLabel value="A&#241;o lectivo: "/>
+                                <br/>
+                                <rich:select value = "#{validacionDistritoBean.anioLectivo}" enableManualInput="false" defaultLabel=" seleccione el año lectivo "  id="cmb-anios-lectivos">
+                                    <f:selectItems value="#{validacionDistritoBean.aniosLectivos}" var="anioLectivo" itemLabel="#{anioLectivo.descripcion}" itemValue="#{anioLectivo.codigo}"/>
+                                    <a4j:ajax event="selectitem" execute="@this" listener="#{validacionDistritoBean.eventoCmbAnioLectivoA(anioLectivo.codigo)}" render="regimen"/>
+                                </rich:select>
+                            </h:panelGroup>
+                            <h:panelGroup id="regimen">
+                                <h:outputLabel value="R&#233;gimen: "/>
+                                <br/>
+                                <rich:select  value = "#{validacionDistritoBean.regimen}" enableManualInput="false" defaultLabel=" seleccione un regimen "  id = "cmdregimen">
+                                    <f:selectItems value="#{validacionDistritoBean.regimenes}" var="regimen" itemLabel="#{regimen.descripcion}" itemValue="#{regimen.codigo}"/>
+                                    <a4j:ajax event="selectitem" execute="@this" listener="#{validacionDistritoBean.eventoCmbRegimenA(regimen.codigo)}" render="jornada"/>
+                                </rich:select>
+                            </h:panelGroup>
+                            <h:panelGroup id="jornada">
+                                <h:outputLabel value="Jornada: "/>
+                                <br/>
+                                <rich:select id="selectJornada"  value = "#{validacionDistritoBean.jornada}" enableManualInput="false" defaultLabel=" seleccione la jornada ">
+                                    <f:selectItems value="#{validacionDistritoBean.jornadas}" var="jornada" itemLabel="#{jornada.descripcion}" itemValue="#{jornada.codigo}"/>
+                                    <a4j:ajax event="selectitem" execute="@this" listener="#{validacionDistritoBean.eventoCmbJornadaA(jornada.codigo)}" render="modalidad"/>
+                                </rich:select>
+                            </h:panelGroup>
+                            <h:panelGroup id="modalidad">
+                                <h:outputLabel value="Modalidad: "/>
+                                <br/>
+                                <rich:select id="selectModalidad"  value = "#{validacionDistritoBean.modalidad}" enableManualInput="false" defaultLabel=" seleccione la modalidad " >
+                                    <f:selectItems value="#{validacionDistritoBean.modalidades}" var="modalidad" itemLabel="#{modalidad.descripcion}" itemValue="#{modalidad.codigo}"/>
+                                    <a4j:ajax event="selectitem" execute="@this" listener="#{validacionDistritoBean.eventoCmbModalidadA(modalidad.codigo)}" render="especialidad"/>
+                                </rich:select>
+                            </h:panelGroup>
+                            <h:panelGroup id="especialidad">
+                                <h:outputLabel value="Especialidad: "/>
+                                <br/>
+                                <rich:select id="selectEspecialidad"   value = "#{validacionDistritoBean.especialidad}" enableManualInput="false" defaultLabel=" seleccione la especialidad ">
+                                    <f:selectItems value="#{validacionDistritoBean.especialidades}" var="especialidad" itemLabel="#{especialidad.descripcion}" itemValue="#{especialidad.codigo}"/>
+                                    <a4j:ajax event="selectitem" execute="@this" listener="#{validacionDistritoBean.eventoCmbEspecialidadA(especialidad.codigo)}" render="paralelo"/>
+                                </rich:select>
+                            </h:panelGroup>
+                            <h:panelGroup id="paralelo">
+                                <h:outputLabel value="Paralelo: "/>
+                                <br/>
+                                    <rich:select id="selectParalelo"  value = "#{validacionDistritoBean.paralelo}" enableManualInput="false" defaultLabel=" seleccione el paralelo " >
+                                    <f:selectItems value="#{validacionDistritoBean.paralelos}" var="paralelo" itemLabel="#{paralelo.descripcion}" itemValue="#{paralelo.codigo}"/>
+                                    <a4j:ajax event="selectitem" execute="@this" listener="#{validacionDistritoBean.eventoCmbParaleloA(paralelo.codigo)}" render="grupo-calificaciones"/>
+                                </rich:select>
+                            </h:panelGroup>
+                        </h:panelGrid>
+                        <br/>
+                        <a4j:commandButton value="Mostrar Estudiantes"
+                                           action="#{validacionDistritoBean.buscar}" render="grupo-calificaciones table"
+                                           execute="@this"></a4j:commandButton>
+
+                    </rich:panel>
+                </h:panelGroup>
+                <br/>
+                <br/>
+                <h:panelGroup id="grupo-calificaciones" style="width: 950px">
+                    <rich:panel styleClass="centrar">
+                        <rich:messages showDetail="false" showSummary="true"/>
+                        <f:facet name="header">Estudiantes y Calificaciones</f:facet>
+                        <!--<div class="table-responsive">-->
+                        <rich:extendedDataTable id="table" var="estudiante" iterationStatusVar="it" rowKeyVar="indice" rows="10" style="width:900px"
+                        						value="#{validacionDistritoBean.estudianteValidacionDTOList}"
+                        						onrowmouseover="this.style.fontWeight='bold'"
+                                                onrowmouseout="this.style.fontWeight='normal'" >
+
+                            <f:facet name="header">Estudiantes Encontrados</f:facet>
+                            <rich:column width="50px">
+                                <f:facet name="header">Nro.</f:facet>
+                                #{it.index+1}
+                            </rich:column>
+                            <rich:column width="100px">
+                                <f:facet name="header">No. Identificaci&#243;n</f:facet>
+                                #{estudiante.cedula}
+                            </rich:column>
+                            <rich:column width="300px">
+                                <f:facet name="header">Nombres</f:facet>
+                                #{estudiante.nombres}
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Promedio de 2do a 10mo Educaci&#243;n General B&#225;sica</f:facet>
+                                #{estudiante.refCalifuno}
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Promedio Bachillerato</f:facet>
+                                #{estudiante.refCalifdos}
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Monograf&#237;a o Proyecto de Grado</f:facet>
+                                #{estudiante.refCaliftres}
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Examen de Grado</f:facet>
+                                #{estudiante.refCalifcuatro}
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Nota Final</f:facet>
+                                <h:outputText value="#{estudiante.refPromedio}">
+                                	<f:convertNumber pattern="#0.00" />
+                                </h:outputText>
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">ENES</f:facet>
+                                #{estudiante.refEnes}
+                            </rich:column>
+                            <rich:column width="100px">
+                                <f:facet name="header">Participaci&#243;n Estudiantil</f:facet>
+                                #{estudiante.pesCodigo}
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Matr&#237;cula 2 y 3 Bachillerato</f:facet>
+                                <h:selectBooleanCheckbox value="#{estudiante.refValunoB}" id="refValunoB">
+                                    <a4j:ajax event="click" execute="@this" 
+                                    		  listener="#{validacionDistritoBean.eventoselectBooleanCheckboxRefValuno(estudiante,it.index)}"/>
+                                </h:selectBooleanCheckbox>
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Cuadro de Promociones de 2do a 10mo EGB</f:facet>
+                                <h:selectBooleanCheckbox value="#{estudiante.refValdosB}" id="refValdosB">
+                                    <a4j:ajax event="click" execute="@this" 
+                                    		  listener="#{validacionDistritoBean.eventoselectBooleanCheckboxRefValdos(estudiante,it.index)}"/>
+                                </h:selectBooleanCheckbox>
+                            </rich:column>
+                            <rich:column width="150px" style="text-align:center" >
+                                <f:facet name="header">Cuadro de Calificaciones Parciales Quimestrales y Finales de los graduados de 3ero. Bachillerato</f:facet>
+                                <h:selectBooleanCheckbox value="#{estudiante.refValtreB}" id="refValtresB">
+                                    <a4j:ajax event="click" execute="@this" 
+                                    		  listener="#{validacionDistritoBean.eventoselectBooleanCheckboxRefValtres(estudiante,it.index)}"/>
+                                </h:selectBooleanCheckbox>
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Monograf&#237;a &#243; Proyecto Grado</f:facet>
+                                <h:selectBooleanCheckbox value="#{estudiante.refValcuatroB}" id="refValcuatroB">
+                                    <a4j:ajax event="click" execute="@this" 
+                                    		  listener="#{validacionDistritoBean.eventoselectBooleanCheckboxRefValcuatro(estudiante,it.index)}"/>
+                                </h:selectBooleanCheckbox>
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Validaci&#243;n Distrito</f:facet>
+                                <h:selectBooleanCheckbox value="#{estudiante.refValcincoB}" id="refValcincoB">
+                                    <a4j:ajax event="click" execute="@this" 
+                                    		  listener="#{validacionDistritoBean.eventoselectBooleanCheckboxRefValcinco(estudiante,it.index)}"/>
+                                </h:selectBooleanCheckbox>
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">Guardar</f:facet>
+                                <a4j:commandLink styleClass="no-decor" execute="@this" render="info-dato-guardado" 
+                                				 action="#{validacionDistritoBean.accionGuardar(estudiante,it.index)}" 
+                                				 oncomplete="#{rich:component('info-dato-guardado')}.show()">
+                                    <h:graphicImage value="/imagenes/guardar-validacion.gif" alt="guardar" />
+                                    <a4j:param value="#{it.index}" assignTo="#{validacionDistritoBean.indiceEstudianteSeleccionado}"/>
+                                </a4j:commandLink>
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center" >
+                                <f:facet name="header">T&#237;tulo</f:facet>
+                                 <a4j:commandLink styleClass="no-decor" execute="@this" render="@none" 
+                                 				  action="#{validacionDistritoBean.accionTitulo()}"
+                                 				  oncomplete="#{validacionDistritoBean.creaScript}">
+                                    <h:graphicImage value="/imagenes/pdf-validacion.gif" alt="Título de Grado" />
+                                    <a4j:param value="#{it.index}" 
+                                    		   assignTo="#{validacionDistritoBean.indiceEstudianteSeleccionado}"/>
+                                </a4j:commandLink> 
+                            </rich:column>
+                            <rich:column width="100px" style="text-align:center;" >
+                                <f:facet name="header">Acta de Grado</f:facet>
+                                <a4j:commandLink id="clAccionActaGrado" styleClass="no-decor" execute="@this" render="@none"
+                                				 action="#{validacionDistritoBean.accionActaGrado()}"
+                                				 oncomplete="#{validacionDistritoBean.creaScript}" >
+                                    <h:graphicImage value="/imagenes/pdf-validacion.gif" alt="Acta de Grado" />
+                                    <a4j:param value="#{it.index}" 
+                                    		   assignTo="#{validacionDistritoBean.indiceEstudianteSeleccionado}"/>
+                                </a4j:commandLink>
+                            </rich:column>
+                        </rich:extendedDataTable>
+                        <rich:dataScroller for="table"/>
+                        <!--</div>-->
+                        <br/>
+                        <br/>
+                        <a4j:commandLink styleClass="no-decor" execute="@this"
+                        				 action="#{validacionDistritoBean.accionImprimirTitulos}"
+                        				 oncomplete="#{validacionDistritoBean.creaScript}">
+                            <h:graphicImage value="/imagenes/imprimir-titulo.png" alt="Imprimir T&#237;tulos" />
+                        </a4j:commandLink>
+                        <br/>
+                        <br/>
+                        <a4j:commandLink styleClass="no-decor" execute="@this"  
+                        				 action="#{validacionDistritoBean.accionImprimirActas}"
+                          				 oncomplete="#{validacionDistritoBean.creaScript}">
+                            <h:graphicImage value="/imagenes/impresion.png" alt="Imprimir Actas de Grado" />
+                        </a4j:commandLink>
+                    </rich:panel>
+                </h:panelGroup>
+            </h:form>
+        </rich:panel>
+        <rich:popupPanel id="info-dato-guardado" width="250" height="100">
+            <f:facet name="header">Informaci&#243;n</f:facet>
+            <h:panelGrid columns="2">
+                <h:outputLabel value = "#{validacionDistritoBean.info}"/>
+            </h:panelGrid>
+            <a onclick="#{rich:component('info-dato-guardado')}.hide();return false;">Aceptar</a>
+        </rich:popupPanel>
+    </ui:define>
+</ui:composition>
+</html>

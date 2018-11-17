@@ -1,0 +1,246 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">Administraci&#243;n de Informaci&#243;n de Parámetro</ui:define>
+    <ui:define name="contenido">
+        <style>
+            .uppercase { text-transform: uppercase; }
+            .width40 { width: 40%;}
+            .preformatted {  white-space: pre;  }
+        </style>
+
+		<script type="text/javascript">
+            function NumCheck(e, field) {
+            	//alert("NumCheck");
+                key = e.keyCode ? e.keyCode : e.which
+                if (key == 9) return true;
+                if (key == 8) return true;
+                if (key > 47 &amp;&amp; key &lt; 58) {
+                    if (field.value == "") return true
+                    regexp = /[0-9]{2}(\.\d{2,2}){0,1}$/
+                    return !(regexp.test(field.value))
+                }
+                if (key == 46) {
+                    if (field.value == "") return false
+                    regexp = /^[0-9]+$/
+                    return regexp.test(field.value)
+                }
+                return false
+            }
+
+            document.oncontextmenu = function() {
+                return false
+            };
+            
+            function multiplicar(item) {
+            	//alert("multiplicar(item)");
+            	//v1 = identificador de la forma que contiene los atributos a procesar. (jbrito-20150908)
+                var v1 = item.id.substring(0 , item.id.length - 9); //El valor 9 = # caracteres del nombre atributo ej: mntPrecio
+                var n1 = parseFloat(document.getElementById(v1 + "numIngreso").value);
+                var n2 = parseFloat(document.getElementById(v1 + "numEgreso").value);
+                var n3 = parseFloat(document.getElementById(v1 + "mntPrecio").value);
+
+                if(n1 + "" == "NaN") n1 = 1;
+                if(n2 + "" == "NaN") n2 = 1;
+                if(n3 + "" == "NaN") n3 = 1;
+                if(n1 == "0") n1 = 1;
+                if(n2 == "0") n2 = 1;
+                
+				var total = (n1 * n2 * n3);
+                var s = document.getElementById(v1 + "mntValor");
+                s.value = total.toString().substr(0, 4); 
+            }
+            
+            function multiplicarExistenciaActual(item) {
+            	//alert("multiplicar(item)");
+            	//v1 = identificador de la forma que contiene los atributos a procesar. (jbrito-20150908)
+                var v1 = item.id.substring(0 , item.id.length - 19); //El valor 9 = # caracteres del nombre atributo ej: mntPrecio
+                var n1 = parseFloat(document.getElementById(v1 + "numExistenciaActual").value);
+                var n2 = parseFloat(document.getElementById(v1 + "mntPrecio").value);
+
+                if(n1 + "" == "NaN") n1 = 1;
+                if(n2 + "" == "NaN") n2 = 1;
+                if(n1 == "0") n1 = 1;
+                if(n2 == "0") n2 = 1;
+                
+				var total = (n1 * n2);
+                var s = document.getElementById(v1 + "mntExistenciaActual");
+                s.value = total.toString().substr(0, 4); 
+            }
+    	</script>
+
+        <h:form id="formBusqueda">
+            <fieldset style="width: 96%; text-align: left;">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar Parámetros:</b>
+				</legend>            
+
+                <div style="width: 100%" align="center">
+					<rich:panel>
+						<fieldset>
+							<h:panelGrid columns="3">
+								<a4j:commandButton value="Buscar Registros" 
+												   render="tblParametros"
+												   action="#{gvParametroBean.buscarListaParametros}" />
+								<a4j:commandLink id="btnNuevo"
+												 render="frm2 tblParametros pngParametros popParametros"
+												 action="#{gvParametroBean.nuevo()}"
+												 oncomplete="#{rich:component('popParametros')}.show();return false;">
+									<h:graphicImage value="/img/nuevo_registro.jpg" alt="Nuevo"
+													title="Ingresar Datos Nuevo Parámetro" />
+								</a4j:commandLink>
+							</h:panelGrid>
+						</fieldset>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 96%; text-align: left;" >
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Registros Encontrados:</b>
+				</legend>
+				<div style="width: 100%" align="center">
+                    <rich:panel>
+                        <div class="table-responsive">
+                        	<h:panelGroup id="tblParametros" >
+                            	<rich:dataTable value="#{gvParametroBean.listaGvParametro}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..."> 
+                                	<rich:column>
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Nombre</f:facet>
+                                    	#{registro.nombre}
+                                	</rich:column>
+                                	<rich:column>
+                                    	<f:facet name="header">Valor</f:facet>
+                                    	#{registro.valor}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Hora Recargo</f:facet>
+                                    	#{registro.horaRecargo}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Porcentaje Recargo</f:facet>
+                                    	#{registro.porcentajeRecargo}
+                                	</rich:column>
+                            		<rich:column>
+                               			<f:facet name="header">Fecha Inicio</f:facet>
+                              			#{registro.fechaInicio.toString().substring(0,10)}
+                            		</rich:column>
+                            		<rich:column>
+                               			<f:facet name="header">Fecha Fin</f:facet>
+                              			#{registro.fechaFin.toString().substring(0,10)}
+                            		</rich:column>
+
+                                	<rich:column>
+                                    	<f:facet name="header">Descripción</f:facet>
+                                    	#{registro.descripcion}
+                                	</rich:column>
+                                	<rich:column style="text-align: center;">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="frm2" 
+                                						 action="#{gvParametroBean.editar(registro)}" 
+                                						 oncomplete="#{rich:component('popParametros')}.show();return false;">
+                                    		<h:graphicImage value="/img/edit.gif" alt="editar" title="Editar Datos Parámetro"/>
+                                    	</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        </div>
+                    </rich:panel>
+                </div>
+			</fieldset><br/>
+            <div class="row"></div>
+        </h:form>
+
+      	<rich:popupPanel id="popParametros" autosized="true" moveable="true">
+			<f:facet name="header">Informaci&#243;n Parámetro</f:facet>
+			<f:facet name="controls">
+		    	<h:outputLink value="#" onclick="#{rich:component('popParametros')}.hide(); return false;">
+		        	<h:graphicImage value="/imagenes/close-icon.ico" alt="cerrar" />
+		        </h:outputLink>
+		    </f:facet>
+						
+			<fieldset  id="fieldset1" style="text-align: left;">
+				<legend class="item-label" align="left" style="font-size: 12px;">
+					<b>Parámetro</b>
+				</legend>
+				<h:form id="frm2">
+			    	<h:outputLabel id="olMensaje" value="#{gvParametroBean.mensaje}" style="color:blue"/>
+		            <h:panelGrid id="pngParametros" columns="3" rendered="true">
+	
+		                <h:outputLabel for="itNombre" value="Nombre: " />
+  			            <h:inputText id="itNombre" style="width: 100%" class="uppercase" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvParametroBean.gvParametro.nombre}" >
+			            </h:inputText>
+				        <rich:message for="itNombre" style="color: red;"></rich:message>
+		
+		                <h:outputLabel for="itValor" value="Valor: " />
+  			            <h:inputText id="itValor" style="width: 100%" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvParametroBean.gvParametro.valor}" >
+			            </h:inputText>
+				        <rich:message for="itValor" style="color: red;"></rich:message>
+
+		                <h:outputLabel for="itHoraRecargo" value="Hora Recargo: " />
+  			            <h:inputText id="itHoraRecargo" size="2" style="width: 25%; text-align: right" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvParametroBean.gvParametro.horaRecargo}"
+			            			 onkeypress="return NumCheck(event, this)" >
+			            	<f:validateLongRange minimum="0" maximum="24" />
+			            </h:inputText>
+				        <rich:message for="itHoraRecargo" style="color: red;"></rich:message>
+	
+		                <h:outputLabel for="itPorcentajeRecargo" value="% Recargo: " />
+  			            <h:inputText id="itPorcentajeRecargo" size="2" style="width: 25%; text-align: right" 
+			            			 required="true" requiredMessage="Campo obligatorio"
+			            			 value="#{gvParametroBean.gvParametro.porcentajeRecargo}"
+			            			 onkeypress="return NumCheck(event, this)" >
+			            	<f:validateLongRange minimum="0" maximum="99" />
+			            </h:inputText>
+				        <rich:message for="itPorcentajeRecargo" style="color: red;"></rich:message>
+
+			            <h:outputLabel for="cFechaInicio" value="Fecha Inicio: "/>
+			            <rich:calendar id="cFechaInicio" required="true" requiredMessage="Campo obligatorio"
+			            			   value="#{gvParametroBean.gvParametro.fechaInicio}"
+			            	   		   datePattern="dd/MM/yyyy"/> 
+				        <rich:message for="cFechaInicio" style="color: red;"></rich:message>
+			                	
+			            <h:outputLabel for="cFechaFin" value="Fecha Fin: "/>
+			            <rich:calendar id="cFechaFin" required="true" requiredMessage="Campo obligatorio"
+			            			   value="#{gvParametroBean.gvParametro.fechaFin}"
+			            	   		   datePattern="dd/MM/yyyy"/> 
+				        <rich:message for="cFechaFin" style="color: red;"></rich:message>
+
+		                <h:outputLabel value="Descripción: " />
+		                <h:inputTextarea style="width: 100%" class="uppercase"  
+		                			 	 value="#{gvParametroBean.gvParametro.descripcion}" 
+		                			 	 onkeyup="mayusculas(this)"/>
+		                <h:outputLabel value="" />
+
+				        <a4j:commandButton id="cbGrabar" render="tblParametros pngParametros olMensaje" 
+				        				   value="Guardar" 
+				                		   action="#{gvParametroBean.guardar}" execute="" />
+				        <a4j:commandButton value="Cancelar" >
+				        	<rich:componentControl target="popParametros" operation="hide"/>
+				        </a4j:commandButton>
+			        </h:panelGrid>
+			    </h:form>
+			</fieldset>
+		</rich:popupPanel>
+
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

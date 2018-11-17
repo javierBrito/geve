@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"> 
+
+<h:head></h:head> 
+<body> 
+	<h:form id="form1">
+		<h1>Lista de Tabla de Prueba</h1>
+		<h:panelGrid columns="1">
+			<h:outputText value="Ingrese Datos: " />
+		</h:panelGrid>
+		
+		<h:inputText value="#{tablaPruebasBean.codigo}" disabled="true" style="width:5%"/>
+		<h:inputText value="#{tablaPruebasBean.descripcion}" style="width:7%"/>
+		<h:inputText value="#{tablaPruebasBean.valor}" style="width:4%"/>
+		
+		<h:commandButton render="form1 dt1" value="Crear" execute="form1"
+						 action="#{tablaPruebasBean.crear()}"/>
+		<h:commandButton render="form1 dt1" value="Actualizar" execute="form1"
+						 action="#{tablaPruebasBean.actualizar()}"/>
+
+		<h:dataTable id="dt1" value="#{tablaPruebasBean.listaTablaPrueba}"
+			border="1" var="registro" rows="10" styleClass="table">
+			<h:column>
+				<f:facet name="header">Código</f:facet>
+				#{registro.codigo}
+			</h:column>
+			<h:column>
+				<f:facet name="header">Descripción</f:facet>
+				#{registro.descripcion}
+			</h:column>
+			<h:column>
+				<f:facet name="header">Valor</f:facet>
+				#{registro.valor}
+			</h:column>
+			<h:column>
+				<f:facet name="header">Editar</f:facet>
+				<h:commandLink render="form1 dt1" execute="form1"
+							   action="#{tablaPruebasBean.editar(registro)}">
+					<h:graphicImage value="/img/edit.gif" alt="Editar" title="Editar" />
+				</h:commandLink>
+			</h:column>
+			<h:column>
+				<f:facet name="header">Eliminar</f:facet>
+				<h:commandLink render="form1 dt1" execute="form1"
+							   action="#{tablaPruebasBean.eliminar(registro)}">
+					<h:graphicImage value="/img/delete.gif" alt="Eliminar" title="Eliminar" />
+				</h:commandLink>
+			</h:column>
+		</h:dataTable>
+	</h:form>
+
+</body> 
+</html>

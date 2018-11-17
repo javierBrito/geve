@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:a4j="http://richfaces.org/a4j">
+
+    <h:head>
+        <title>
+            <ui:insert name="titulo">
+                <h:outputText value="T&#205;tulo de P&#225;gina"/> 
+            </ui:insert>
+        </title>
+        <link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/estilo.css" />
+        <script type="text/javascript" src="#{request.contextPath}/js/utils.js" />
+    </h:head>
+    
+    <h:body>
+    	<div class="contenedor">
+	    	<ui:insert name="cabecera" >
+	            <ui:include src="/plantillas/cabecera.xhtml" />
+	        </ui:insert>
+	        <div class="contenedor-horizontal">
+		        <div class="menu-vertical">
+			        <ui:insert name="menu" >
+			            <ui:include src="/plantillas/menu.xhtml" />
+			        </ui:insert>
+		        </div>
+		        <div class="contenido">
+			        <span class="titulo">
+			        	<ui:insert name="titulo">
+			        		<h:outputText value="Titulo de la Pagina"/>
+			        	</ui:insert>
+			        </span>
+			        <br/><br/>
+			        <a4j:status onstart="#{rich:component('statPane')}.show()" onstop="#{rich:component('statPane')}.hide()" />
+					<rich:popupPanel id="statPane" autosized="true">
+						<h:graphicImage value="/css/images/ajax-loader.gif" alt="ai" />
+	            		Por favor espere...
+	        		</rich:popupPanel>
+					<rich:messages ajaxRendered="true" globalOnly="true"
+						showDetail="false"></rich:messages>
+					<ui:insert name="contenido">
+						<h:outputText value="Contenido de la p&#255;gina" />
+					</ui:insert>
+			</div>
+	        </div>
+	        <ui:insert name="pie" >
+	            <ui:include src="/plantillas/pie.xhtml" />
+	        </ui:insert>
+	        
+        </div>
+    </h:body>
+    
+</html>

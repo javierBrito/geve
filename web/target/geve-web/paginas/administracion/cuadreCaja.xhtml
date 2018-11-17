@@ -1,0 +1,227 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+    			xmlns:h="http://java.sun.com/jsf/html"
+    			xmlns:f="http://java.sun.com/jsf/core" 
+    			xmlns:ui="http://java.sun.com/jsf/facelets" 
+    			xmlns:a4j="http://richfaces.org/a4j"
+    			xmlns:rich="http://richfaces.org/rich"
+    			template="/plantillas/contenedor.xhtml">
+
+    <ui:define name="titulo">Movimientos de la Fecha</ui:define>
+    <ui:define name="contenido">
+        <h:form id="formBusqueda">
+            <fieldset style="width: 125%">
+        		<legend class="item-label" align="left" style="font-size: 12px;">
+        			<b>Buscar Movimientos:</b>
+				</legend>            
+                <div align="center">
+					<rich:panel style="font-size: 12px; font-weight: bold">
+						<h:panelGrid columns="3">
+							<h:outputLabel value="Producto: " />
+							<rich:select width="20"
+										 value="#{gvKardexFechaCuadreCajaBean.idProductoBuscar}"
+										 defaultLabel=" seleccione el producto ">
+								<f:selectItems value="#{gvKardexFechaCuadreCajaBean.listaGvProducto}"
+											   var="item" itemValue="#{item.idProducto}"
+											   			  itemLabel="#{item.descripcion}">
+								</f:selectItems>
+							</rich:select>
+		                	<h:outputLabel value="" />
+			                	
+			            	<h:outputLabel for="cFechaRegistra" value="Fecha Registra: "/>
+			            	<rich:calendar id="cFechaRegistra" required="true" requiredMessage="Campo obligatorio"
+			            				   value="#{gvKardexFechaCuadreCajaBean.fechaRegistra}"
+			            	   			   datePattern="dd/MM/yyyy"/> 
+				        	<rich:message for="cFechaRegistra" style="color: red;"></rich:message>
+						
+							<a4j:commandButton value="Buscar Registros" 
+											   render="tblKardexs btnExcel olMensaje pgCaja dtCajaDetalles cFechaRegistra pgActualizarCaja"
+											   action="#{gvKardexFechaCuadreCajaBean.buscarListaPorParametros}" />
+						</h:panelGrid>
+					</rich:panel>
+				</div>
+			</fieldset><br/>
+		            
+			<fieldset style="width: 125%">
+				<div>
+                    <h:panelGrid columns="3">
+                    	<rich:panel>
+							<legend class="item-label" style="font-size: 12px;">
+								<b>Movimientos:</b>
+							</legend>
+							<div align="center">
+								<h:panelGrid columns="1">
+									<a4j:commandLink id="btnExcel" render="olMensaje"
+													 disabled="#{empty gvKardexFechaCuadreCajaBean.listaGvKardexFechaSaldosSalida}"
+									 				 action="#{gvKardexFechaCuadreCajaBean.exportarExcel()}">
+										<h:graphicImage value="/img/excel.png" alt="Excel"
+														title="Exportar a Excel" />
+									</a4j:commandLink>
+			    					<h:outputLabel id="olMensaje" value="#{gvKardexFechaCuadreCajaBean.mensaje}" style="color:blue"/>
+			    				</h:panelGrid>
+			    			</div>
+                        	<div class="table-responsive">
+                        	<h:panelGroup id="tblKardexs">
+                            	<rich:dataTable value="#{gvKardexFechaCuadreCajaBean.listaGvKardexFechaSaldosSalida}" var="registro" 
+                                	            rows="10" styleClass="table" iterationStatusVar="it"
+                                    	        noDataLabel="No existen registros..." > 
+                                	<rich:column style="text-align: center">
+                                    	<f:facet name="header">Nro.</f:facet>
+                                    	#{it.index +1}
+                                	</rich:column>
+                                	<rich:column style="font-size: 11px; font-weight: bold">
+                                    	<f:facet name="header">Descripción</f:facet>
+                                    	#{registro.descripcion}
+                                	</rich:column>
+                                	<rich:column style="text-align:center; font-size: 12px; font-weight: bold">
+                                    	<f:facet name="header">Items</f:facet>
+                                    	#{registro.numEgreso}
+                                	</rich:column>
+                                	<rich:column style="text-align: right; font-size: 12px; font-weight: bold; color: blue;">
+                                    	<f:facet name="header">Debe</f:facet>
+                                    	#{registro.mntValorEgreso}
+                                	</rich:column>
+                                	<rich:column style="text-align: center; font-size: 12px; font-weight: bold; color: blue;">
+                                    	<f:facet name="header">Items</f:facet>
+                                    	#{registro.numIngreso}
+                                	</rich:column>
+
+									<!-- <rich:column>
+                            			<rich:spacer></rich:spacer>
+                            			<f:facet name="footer">
+                                			<h:outputText value="#{registro.mntValorIngreso}"><f:convertNumber   pattern="$####.00"    /></h:outputText>
+                            			</f:facet>
+                        			</rich:column> -->
+
+    	                           	<rich:column style="text-align: right; font-size: 12px; font-weight: bold; color: blue;">
+                                    	<f:facet name="header">Haber</f:facet>
+										<h:outputText value="#{registro.mntValorIngreso}"><f:convertNumber pattern="####.##"/></h:outputText>
+                                	</rich:column>
+                                	
+                                	<rich:column style="text-align: right; font-size: 12px; font-weight: bold; color: blue;">
+                                    	<f:facet name="header">Saldo</f:facet>
+                                    	#{registro.mntSaldo}
+                                	</rich:column>
+                                	<rich:column style="text-align: right; font-size: 12px; font-weight: bold; color: blue;">
+                                    	<f:facet name="header">Importe</f:facet>
+                                    	#{registro.mntImporte}
+                                	</rich:column>
+                                	<rich:column style="text-align: center">
+                                		<f:facet name="header">Opciones</f:facet>
+                                		<a4j:commandLink render="tblKardexs olMensaje" rendered="#{!registro.registroVerificado}" 
+                                						 action="#{gvKardexFechaCuadreCajaBean.verificar(registro, it.index)}">
+                                    		<h:graphicImage value="/img/proceso2.png" alt="verificar registro" title="verificar registro"/>
+                                    	</a4j:commandLink>
+                               			<a4j:commandLink render="tblKardexs olMensaje" rendered="#{registro.registroVerificado}"
+                               							 action="#{gvKardexFechaCuadreCajaBean.verificar(registro, it.index)}">
+                                   			<h:graphicImage value="/img/check.jpeg" alt="registro verificado" title="registro verificado"/>
+                                   		</a4j:commandLink>
+                                	</rich:column>
+                                	<f:facet name="footer"><rich:dataScroller/></f:facet>
+                            	</rich:dataTable>
+                        	</h:panelGroup>                            
+                        	</div>
+            				<div class="row"></div>
+                        </rich:panel>
+
+               			<h:outputLabel value=""/>
+
+                    	<rich:panel>
+							<legend class="item-label" align="left" style="font-size: 12px;">
+								<b>Caja:</b>
+							</legend>
+							<h:form id="frm3">
+		            			<h:panelGrid id="pgCaja" columns="3" >
+	            					<h:outputLabel value="Fecha Registra: " style="font-size: 11px; font-weight: bold"/>
+				                	<h:inputText readonly="true" style="width: 45%; text-align: center; font-size: 12px; font-weight: bold"   
+		    		            				 value="#{gvKardexFechaCuadreCajaBean.fechaRegistraString}" >
+									</h:inputText>
+		                			<h:outputLabel value="" />
+
+			                		<h:outputLabel value="Monto Caja: " style="font-size: 11px; font-weight: bold"/>
+				                	<h:inputText readonly="true" style="width: 45%; text-align: right; font-size: 12px; font-weight: bold"   
+		    		            				 value="#{gvKardexFechaCuadreCajaBean.gvCajaActualizar.mntCaja}" >
+									</h:inputText>
+		                			<h:outputLabel value="" />
+
+		                			<h:outputLabel value="Monto Libro: " style="font-size: 11px; font-weight: bold"/>
+		                			<h:inputText readonly="true" style="width: 45%; text-align: right; font-size: 12px; font-weight: bold"   
+		                			 			 value="#{gvKardexFechaCuadreCajaBean.gvCajaActualizar.mntLibro}" >
+									</h:inputText>
+		                			<h:outputLabel value="" />
+
+		                			<h:outputLabel value="Monto Diferencia: " style="font-size: 11px; font-weight: bold" />
+		                			<h:inputText readonly="true" style="width: 45%; text-align: right; font-size: 12px; font-weight: bold"   
+		                						 value="#{gvKardexFechaCuadreCajaBean.gvCajaActualizar.mntDiferencia}" >
+									</h:inputText>
+		                			<h:outputLabel value="" />
+			        			</h:panelGrid>
+
+								<h:panelGrid>
+                       				<h:panelGroup id="pgCajaDetalles">
+										<rich:dataTable	id="dtCajaDetalles" value="#{gvKardexFechaCuadreCajaBean.listaGvCajaDetalleActualizar}"
+														var="registro2" rows="10" styleClass="table"
+														iterationStatusVar="it" noDataLabel="No existen registros..." >
+											<rich:column style="text-align: center">
+												<f:facet name="header">Nro.</f:facet>
+                                    			#{it.index +1}
+                                			</rich:column>
+
+											<rich:column style="text-align: center">
+												<f:facet name="header">Nominación</f:facet>
+												<h:inputText id="itValor" size="4" style="font-size: 11px; font-weight: bold; text-align:center"
+															 readonly="true" 
+															 value="#{registro2.gvTipoNominacion.valor}" >
+			            						</h:inputText>
+											</rich:column>
+											<!-- <rich:column>
+												<f:facet name="header">Tipo Nominacion</f:facet>
+												<h:inputText style="font-size: 11px; font-weight: bold" size="10"
+															 value="#{registro2.gvTipoNominacion.descripcion}" readonly="true" >
+			            						</h:inputText>
+											</rich:column> -->
+								
+											<rich:column style="text-align: center">
+												<f:facet name="header">Cantidad</f:facet>
+												<h:inputText id="itCantidad" size="4" style="font-size: 11px; font-weight: bold; text-align:center" 
+															 required="true" requiredMessage="Campo obligatorio" 
+												 			 value="#{registro2.numCantidad}"  
+				            		 						 onkeyup="multiplicar(this)"
+														 	 onkeypress="return NumCheck(event, this)" >
+			            						</h:inputText>
+											</rich:column>
+								
+											<rich:column style="text-align: center">
+												<f:facet name="header">Importe</f:facet>
+												<h:inputText id="itImporte" style="font-size: 11px; font-weight: bold; text-align:center"
+															 readonly="true" size="4"  
+															 value="#{registro2.mntImporte}"
+															 onkeypress="return NumCheck(event, this)" >
+			            						</h:inputText>
+											</rich:column>
+											<f:facet name="footer">
+												<rich:dataScroller />
+											</f:facet>
+										</rich:dataTable>
+									</h:panelGroup>
+								</h:panelGrid>
+
+								<h:panelGrid id="pgActualizarCaja" columns="1">
+				        			<a4j:commandButton id="cbActualizarCaja" render="formBusqueda"
+				        							   rendered="#{gvKardexFechaCuadreCajaBean.visibleCbActualizarCaja}" 
+				        							   value="Actualizar Caja" 
+				                		   			   action="#{gvKardexFechaCuadreCajaBean.actualizarCaja}" />
+				        			<!-- <a4j:commandButton value="Cancelar" >
+				        				<rich:componentControl target="popCajaActualizar" operation="hide"/>
+				        			</a4j:commandButton> -->
+			        			</h:panelGrid>
+			    			</h:form>
+						</rich:panel>
+                	</h:panelGrid>
+            	</div>
+			</fieldset><br/>
+        </h:form>
+        <a4j:status>
+        	<f:facet name="start"><h:graphicImage value="/imagenes/wait.gif" alt="wait"/></f:facet>
+        </a4j:status>
+    </ui:define>
+</ui:composition>

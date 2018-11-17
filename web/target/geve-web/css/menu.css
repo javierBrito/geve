@@ -1,0 +1,103 @@
+.menu-0 a {
+	background: #4A75B5 url("../img/pmenu_bg.png") repeat-x;
+	border: 1px solid #C0C0C0;
+	border-top: 0px;
+	color: #FFFFFF;
+	display: block;
+	height: 27px;
+	line-height: 27px;
+	position: relative;
+	font-weight: bold;
+	text-indent: 24px;
+	width: 210px;
+	margin-bottom: 3px;
+	text-decoration: none;
+	
+}
+
+.menu-0 a:focus {
+	outline: none;
+}
+
+.menu-1 {
+	margin-top: -3px;
+	margin-bottom: 3px;
+}
+
+.menu-1 span {
+	background-image: none;
+}
+
+.menu-1 a {
+	background: #FFFFFF;
+	color: #000000;
+	text-indent: 43px;
+	font-weight: normal;
+	margin-bottom: 0px;
+	background: url("../img/disc.png") 25px 6px no-repeat;
+}
+
+
+.menu-2 a {
+	background: #FFFFFF;
+	text-indent: 60px;
+	margin-bottom: 0px;
+	background: url("../img/disc.png") 42px 6px no-repeat;
+}
+
+.menu-3 a {
+	background: url("../img/disc.png") 56px 6px no-repeat;
+	text-indent: 76px;
+}
+
+.menu-0 a:hover {
+	color: #FFFFFF;
+	cursor: pointer;
+}
+
+.menu-1 a:hover {
+	color: #000000;
+	cursor: pointer;
+	background: #EAF0F8 url("../img/disc.png") 25px 6px no-repeat;
+}
+
+.menu-2 a:hover {
+	color: #000000;
+	cursor: pointer;
+	background: #EAF0F8 url("../img/disc.png") 42px 6px no-repeat;
+}
+
+.menu-3 a:hover {
+	background:  #EAF0F8 url("../img/disc.png") 56px 6px no-repeat;
+	text-indent: 76px;
+}
+
+.imagen-cabecera {
+	background: url('../img/chevron.png') no-repeat 0 0;
+	border: none;
+	height: 14px;
+	cursor: default;
+	position: absolute;
+	right: 8px;
+	top: 4px;
+	width: 14px
+}
+
+.cabecera-2 .imagen-cabecera {
+	left: 13px
+}
+
+.cabecera-3 .imagen-cabecera {
+	left: 24px
+}
+
+a.lm,a.lm:hover {
+	
+}
+
+.menu-1 a.tiene-items, .menu-1 a.tiene-items:hover {
+	font-weight: bold;
+	background-image: url('../img/triangle.png')
+}
+
+

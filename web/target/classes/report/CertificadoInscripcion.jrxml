@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CertificadoInscripcion" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" >
+	<property name="ireport.zoom" value="1.3310000000000004"/>
+	<property name="ireport.x" value="57"/>
+	<property name="ireport.y" value="497"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="Table Dataset 1" />
+	<parameter name="URL_LOGO" class="java.lang.String"/>
+	<parameter name="CODIGO_INSCRIPCION" class="java.lang.String"/>
+	<parameter name="URL_BACKGROUND" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT DISTINCT TRIM(E.NOMBRES) AS NOMBRE_ESTUDIANTE,
+                  E.CEDULA AS CEDULA_ESTUDIANTE,
+                  E.NECESIDAD_EDU_ESPEC AS UDAI,
+  E.REFUGIADO,
+  E.EXTRANJERO,
+  E.CARNET_REFUGIADO,
+                  U.DIRECCION_COMPLETA DIRECCION,
+  U.COD_CIRCUITO,
+                  TRIM(R.NOMBRES) AS NOMBRE_REPRESENTANTE,
+                  R.CEDULA AS CEDULA_REPRESENTANTE,
+                  R.CELULAR AS CELULAR_REPRESENTANTE,
+                  R.CONVENCIONAL AS TELEFONO_REPRESENTANTE,
+                  R.OTRO_PARENTESCO AS NUEVO_PARENTESCO,
+                  (SELECT D.NOMBRE FROM INS_ITEM_CATALOGO D WHERE D.CODIGO = U.AREA) AS AREA,
+                  (SELECT D.NOMBRE FROM INS_ITEM_CATALOGO D WHERE D.CODIGO = R.CODIGO_PARENTESCO) AS AUTOREPRESENTADO,
+                  E.COD_NIVEL_ESTUDIO AS NIVEL,
+                  TO_CHAR(I.FECHA, 'DD/MM/YYYY') AS FECHA,
+  I.CODIGO,
+  U.CODIGO_POSTAL,
+                  I.CODIGO_SEDE||DECODE(I.SECUENCIAL_SEDE, 0, I.CODIGO, I.SECUENCIAL_SEDE)||E.CODIGO AS CERTIFICADO,
+                  E.COD_TIPO_PROCESO AS TIPO_PROCESO,
+                  E.COD_CASO_ESPECIAL AS CASO_ESPECIAL,
+                  DECODE(I.FECHA,NULL,DECODE(I.FECHA_EDICION,NULL,TO_CHAR(SYSDATE, 'DD/MM/YYYY'),TO_CHAR(I.FECHA_EDICION, 'DD/MM/YYYY')),TO_CHAR(I.FECHA, 'DD/MM/YYYY')) AS FECHA_FIN,
+                  --IP.VALOR_CADENA AS NOTA_DESCARGO,
+                  TRIM(REG.NOMBRES) AS NOM_REGISTRANTE,
+                  REG.CEDULA AS CED_REGISTRANTE,
+                  I.REGISTRA_MATRICULA AS BILINGUE,
+                  (SELECT PR.DESCRIPCION FROM INS_PROVINCIA PR WHERE PR.CODIGO = U.DPA_PROVINCIA) AS PROVINCIA,
+                  (SELECT CAN.DESCRIPCION FROM INS_CANTON CAN WHERE CAN.CODIGO = U.DPA_CANTON) AS CANTON,
+                  (SELECT PAR.DESCRIPCION FROM INS_PARROQUIA PAR WHERE PAR.CODIGO = U.DPA_PARROQUIA) AS PARROQUIA,
+                  (SELECT COM.DESCRIPCION FROM INS_COMUNIDAD COM WHERE COM.CODIGO = U.COD_COMUNIDAD) AS COMUNIDAD,
+E.COD_GRADO AS CODIGO_GRADO, valor_fecha
+FROM INS_INSCRIPCION I,
+INS_REGISTRO_ESTUDIANTE E,
+INS_REPRESENTANTE R,
+INS_UBICACION U,
+INS_ITEM_PARAMETRO IP,
+INS_REPRESENTANTE REG
+WHERE I.CODIGO = E.COD_INSCRIPCION
+AND I.CODIGO = R.COD_INSCRIPCION
+AND I.CODIGO = U.COD_INSCRIPCION
+AND R.REPRESENTANTE_LEGAL='S'
+AND E.CODIGO = R.CODIGO_ESTUDIANTE
+AND e.cod_grado=ip.cod_grado
+AND I.CODIGO = REG.COD_INSCRIPCION
+and cod_parametro=86
+--AND REG.REGISTRANTE='S'
+AND REG.CODIGO_ESTUDIANTE= E.CODIGO
+AND I.CODIGO = $P{CODIGO_INSCRIPCION}]]>
+	</queryString>
+	<field name="NOMBRE_ESTUDIANTE" class="java.lang.String"/>
+	<field name="CEDULA_ESTUDIANTE" class="java.lang.String"/>
+	<field name="UDAI" class="java.lang.String"/>
+	<field name="REFUGIADO" class="java.lang.String"/>
+	<field name="EXTRANJERO" class="java.math.BigDecimal"/>
+	<field name="CARNET_REFUGIADO" class="java.lang.String"/>
+	<field name="DIRECCION" class="java.lang.String"/>
+	<field name="COD_CIRCUITO" class="java.lang.String"/>
+	<field name="NOMBRE_REPRESENTANTE" class="java.lang.String"/>
+	<field name="CEDULA_REPRESENTANTE" class="java.lang.String"/>
+	<field name="CELULAR_REPRESENTANTE" class="java.lang.String"/>
+	<field name="TELEFONO_REPRESENTANTE" class="java.lang.String"/>
+	<field name="NUEVO_PARENTESCO" class="java.lang.String"/>
+	<field name="AREA" class="java.lang.String"/>
+	<field name="AUTOREPRESENTADO" class="java.lang.String"/>
+	<field name="NIVEL" class="java.lang.String"/>
+	<field name="FECHA" class="java.lang.String"/>
+	<field name="CODIGO" class="java.math.BigDecimal"/>
+	<field name="CODIGO_POSTAL" class="java.lang.String"/>
+	<field name="CERTIFICADO" class="java.lang.String"/>
+	<field name="TIPO_PROCESO" class="java.math.BigDecimal"/>
+	<field name="CASO_ESPECIAL" class="java.math.BigDecimal"/>
+	<field name="FECHA_FIN" class="java.lang.String"/>
+	<field name="NOM_REGISTRANTE" class="java.lang.String"/>
+	<field name="CED_REGISTRANTE" class="java.lang.String"/>
+	<field name="BILINGUE" class="java.lang.String"/>
+	<field name="PROVINCIA" class="java.lang.String"/>
+	<field name="CANTON" class="java.lang.String"/>
+	<field name="PARROQUIA" class="java.lang.String"/>
+	<field name="COMUNIDAD" class="java.lang.String"/>
+	<field name="CODIGO_GRADO" class="java.math.BigDecimal"/>
+	<field name="valor_fecha" class="java.sql.Timestamp"/>
+	<background>
+		<band height="698" splitType="Stretch">
+			<image>
+				<reportElement x="-27" y="-19" width="501" height="717" >
+					<printWhenExpression><![CDATA[($V{PAGE_NUMBER}.intValue() % 2) == 1]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{URL_BACKGROUND}]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="108" splitType="Stretch">
+			<image scaleImage="FillFrame" hAlign="Center">
+				<reportElement mode="Transparent" x="176" y="-1" width="202" height="78" />
+				<imageExpression><![CDATA[$P{URL_LOGO}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement positionType="Float" x="-237" y="-155" width="451" height="36" forecolor="#6BB24A" >
+					<printWhenExpression><![CDATA[($V{PAGE_NUMBER}.intValue() % 2) == 0]]></printWhenExpression>
+				</reportElement>
+				<box topPadding="18" bottomPadding="3">
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["LISTA DE ÚTILES PARA "+$F{NIVEL}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="52" y="71" width="451" height="35" forecolor="#6BB24A" >
+					<printWhenExpression><![CDATA[($V{PAGE_NUMBER}.intValue() % 2) == 1]]></printWhenExpression>
+				</reportElement>
+				<box topPadding="15" bottomPadding="3">
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#CCCCCC"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#FFFFFF"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="SansSerif" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CERTIFICADO DE INSCRIPCIÓN]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="417">
+			<staticText>
+				<reportElement x="4" y="338" width="547" height="51" />
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Nota de descargo: El Ministerio de Educación, realizará la asignación de estudiantes a instituciones educativas tomando en cuenta el circuito de residencia del aspirante.
+El/la registrante declara tener poder/autorización suficiente para realizar el presente registro y establecer que la información que este documento contiene es veraz, por lo que asumirá la responsabilidad y obligaciones que por efecto de este proceso generen.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="175" y="195" width="181" height="20" />
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" isBold="true" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[REGISTRANTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="175" y="268" width="84" height="20" >
+					<printWhenExpression><![CDATA[$F{CED_REGISTRANTE}!=null]]></printWhenExpression>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[# Identificación:]]></text>
+			</staticText>
+			<line>
+				<reportElement positionType="Float" x="175" y="235" width="181" height="1" />
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="259" y="269" width="97" height="20" />
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CED_REGISTRANTE}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="Float" x="259" y="288" width="97" height="1" >
+					<printWhenExpression><![CDATA[$F{CED_REGISTRANTE}!=null]]></printWhenExpression>
+				</reportElement>
+			</line>
+			<textField>
+				<reportElement positionType="Float" x="175" y="236" width="181" height="20" />
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{NOM_REGISTRANTE}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement x="30" y="136" width="100" height="20" />
+			</rectangle>
+			<staticText>
+				<reportElement x="39" y="137" width="91" height="20" />
+				<text><![CDATA[Cantón:]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="30" y="156" width="100" height="20" />
+			</rectangle>
+			<rectangle>
+				<reportElement x="121" y="136" width="201" height="20" />
+			</rectangle>
+			<rectangle>
+				<reportElement x="121" y="156" width="201" height="20" />
+			</rectangle>
+			<staticText>
+				<reportElement x="40" y="156" width="91" height="20" />
+				<text><![CDATA[Dirección:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="196" y="136" width="100" height="20" />
+				<textFieldExpression><![CDATA[$F{CANTON}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="121" y="156" width="201" height="20" />
+				<textFieldExpression><![CDATA[$F{DIRECCION}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement x="322" y="136" width="100" height="20" />
+			</rectangle>
+			<rectangle>
+				<reportElement x="322" y="156" width="100" height="20" />
+			</rectangle>
+			<rectangle>
+				<reportElement x="422" y="136" width="100" height="20" />
+			</rectangle>
+			<rectangle>
+				<reportElement x="422" y="156" width="100" height="20" />
+			</rectangle>
+			<staticText>
+				<reportElement x="336" y="136" width="85" height="20" />
+				<text><![CDATA[Provincia:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="336" y="156" width="86" height="20" />
+				<text><![CDATA[Teléfono:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="432" y="136" width="100" height="20" />
+				<textFieldExpression><![CDATA[$F{PROVINCIA}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="13" y="3" width="528" height="117" />
+				<box topPadding="8"/>
+				<textElement textAlignment="Justified" markup="html">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["El/la aspirante "+$F{NOMBRE_ESTUDIANTE}+
+" con la cédula de ciudadanía No. "+$F{CEDULA_ESTUDIANTE}+ " fue registrado en esta sede de inscripción en el "+$F{NIVEL}+", el día "+$F{FECHA}+", por parte del/la Señor (a) "+$F{NOM_REGISTRANTE}+
+", identificado con la cédula de ciudadanía No. "+$F{CED_REGISTRANTE}+". "+
+"<br><br>"+
+"La persona que actuará como representante legal será el Señor(a) "+$F{NOMBRE_REPRESENTANTE}+
+" identificado con la cédula de ciudadanía No. "+$F{CEDULA_REPRESENTANTE}+", que indica ser "+$F{AUTOREPRESENTADO}+" del aspirante."]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="431" y="157" width="109" height="20" />
+				<textFieldExpression><![CDATA["09"+$F{CELULAR_REPRESENTANTE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd-MM-yyyy">
+				<reportElement x="324" y="389" width="91" height="20" />
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{valor_fecha}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="83" y="389" width="239" height="20" />
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Su hijo o representado ingresará a clases el]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="67" splitType="Stretch">
+			<componentElement>
+				<reportElement x="0" y="20" width="136" height="40" />
+				<jr:Code39 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" textPosition="bottom">
+					<jr:codeExpression><![CDATA[$F{CERTIFICADO}]]></jr:codeExpression>
+				</jr:Code39>
+			</componentElement>
+			<staticText>
+				<reportElement x="52" y="0" width="451" height="20" forecolor="#333333" />
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="false" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[http://juntos.educacion.gob.ec]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
